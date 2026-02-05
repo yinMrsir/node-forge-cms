@@ -1,0 +1,57 @@
+{
+  "name": "node_forge_admin",
+  "version": "2.0.0",
+  "description": "NodeForgeCMS",
+  "author": "eagle",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build:prod": "vite build",
+    "build:single": "vite build --mode single",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "dependencies": {
+    "@element-plus/icons-vue": "2.0.10",
+    "@vueuse/core": "9.5.0",
+    "@wangeditor-next/editor": "^5.6.49",
+    "@wangeditor/editor-for-vue": "^5.1.12",
+    "axios": "1.7.4",
+    "dayjs": "^1.11.13",
+    "echarts": "5.4.0",
+    "element-plus": "2.2.21",
+    "file-saver": "2.0.5",
+    "fuse.js": "6.6.2",
+    "js-cookie": "3.0.1",
+    "jsencrypt": "3.3.1",
+    "nprogress": "0.2.0",
+    "pinia": "2.0.22",
+    "vue": "3.5.13",
+    "vue-clipboard3": "^2.0.0",
+    "vue-cropper": "1.0.3",
+    "vue-router": "4.5.0"
+  },
+  "devDependencies": {
+    "@tinymce/tinymce-vue": "^5",
+    "@typescript-eslint/parser": "^8.18.1",
+    "@vitejs/plugin-vue": "5.2.1",
+    "@vue/compiler-sfc": "3.2.45",
+    "eslint": "8.57.1",
+    "eslint-config-prettier": "9.1.0",
+    "eslint-define-config": "^1.24.1",
+    "eslint-plugin-prettier": "5.2.1",
+    "eslint-plugin-vue": "^9.17.0",
+    "prettier": "^3.3.3",
+    "sass": "1.56.1",
+    "unocss": "^66.5.10",
+    "unplugin-auto-import": "0.11.4",
+    "vite": "5.4.6",
+    "vite-plugin-compression": "0.5.1",
+    "vite-plugin-svg-icons": "2.0.1",
+    "vite-plugin-vue-setup-extend": "0.4.0"
+  }
+}
