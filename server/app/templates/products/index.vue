@@ -66,7 +66,9 @@
             :to="productLink(product)"
           >
             <div class="relative overflow-hidden pt-4">
-              <img
+              <nuxt-img
+                format="webp"
+                loading="lazy"
                 :src="product.mainImage || ''"
                 alt="product.name"
                 class="w-full h-48 object-contain transition-transform duration-500 group-hover:scale-105"
@@ -183,28 +185,26 @@
   const keywords = props.category?.keywords?.[locale.value] || props.category?.keywords?.zh;
 
   // 分页参数
-  const pageSize = 10;
+  const pageSize = 8;
   const currentPage = computed(() => Number(route.query.page) || 1);
 
   // 产品分类
-  const [{ t }, { data: productCates }]: any = await Promise.all([
+  const [{ t }, { data: productCates }, { data: productListData }]: any = await Promise.all([
     useI18nLoader(),
     useFetch('/api/public/cms/category/list', {
       query: {
         parentCategoryId: categoryId,
         status: '1'
       }
+    }),
+    useFetch('/api/public/cms/product/list', {
+      query: {
+        categoryId,
+        limit: pageSize,
+        pageNum: currentPage
+      }
     })
   ]);
-
-  // 产品列表数据
-  const { data: productListData } = await useFetch('/api/public/cms/product/list', {
-    query: {
-      categoryId,
-      limit: pageSize,
-      pageNum: currentPage
-    }
-  });
 
   const productList = computed(() => productListData.value?.rows || []);
   const total = computed(() => productListData.value?.total || 0);

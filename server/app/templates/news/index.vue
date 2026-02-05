@@ -75,7 +75,13 @@
             class="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer"
             :to="newsLink(news)"
           >
-            <img :src="news.coverImage || ''" alt="news.title" class="w-full h-48 object-cover" />
+            <nuxt-img
+              format="webp"
+              loading="lazy"
+              :src="news.coverImage || ''"
+              alt="news.title"
+              class="w-full h-48 object-cover"
+            />
             <div class="p-6">
               <div class="flex items-center text-xs text-gray-500 mb-2">
                 <span>{{ news.category?.categoryName?.[locale] ?? news.category?.categoryName?.zh }}</span>
@@ -171,31 +177,29 @@
   const desciprtion = props.category?.description?.[locale.value] || props.category?.description?.zh;
   const keywords = props.category?.keywords?.[locale.value] || props.category?.keywords?.zh;
 
+  // 搜索&筛选参数
+  const searchKey = ref('');
+  // 分页参数
+  const pageSize = 8;
+  const currentPage = computed(() => Number(route.query.page) || 1);
+
   // 产品分类
-  const [{ t }, { data: newsCates }]: any = await Promise.all([
+  const [{ t }, { data: newsCates }, { data: newsData }]: any = await Promise.all([
     useI18nLoader(),
     useFetch('/api/public/cms/category/list', {
       query: {
         parentCategoryId: categoryId,
         status: '1'
       }
+    }),
+    useFetch('/api/public/cms/news/list', {
+      query: {
+        categoryId,
+        limit: pageSize,
+        pageNum: currentPage
+      }
     })
   ]);
-
-  // 搜索&筛选参数
-  const searchKey = ref('');
-  // 分页参数
-  const pageSize = 10;
-  const currentPage = computed(() => Number(route.query.page) || 1);
-
-  // 新闻列表数据
-  const { data: newsData } = await useFetch('/api/public/cms/news/list', {
-    query: {
-      categoryId,
-      limit: pageSize,
-      pageNum: currentPage
-    }
-  });
   const totalPages = ref(Math.ceil((newsData.value?.total || 0) / pageSize));
 
   function newsLink(news: any) {

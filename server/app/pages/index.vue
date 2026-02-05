@@ -83,7 +83,9 @@
             :to="productLink(product)"
             class="product-card bg-gray-50 rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 pt-4"
           >
-            <img
+            <nuxt-img
+              format="webp"
+              loading="lazy"
               :src="product.mainImage || ''"
               :alt="product.productName?.[locale] ?? product.productName?.zh"
               class="w-full h-48 object-contain"
@@ -132,7 +134,9 @@
               class="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
             >
               <nuxt-link :to="newsLink(item)">
-                <img
+                <nuxt-img
+                  format="webp"
+                  loading="lazy"
                   :src="item.coverImage || ''"
                   :alt="item.title?.[locale] ?? item.title?.en"
                   class="w-full h-64 object-cover"
@@ -142,13 +146,13 @@
                 <div class="flex items-center text-sm text-gray-500 mb-2">
                   <span>{{ item.publishTime }}</span>
                   <span class="mx-2">|</span>
-                  <span>{{ item.category?.categoryName?.[locale] ?? item.category?.categoryName?.en }}</span>
+                  <span>{{ item.category?.categoryName?.[locale] ?? item.category?.categoryName?.zh }}</span>
                 </div>
                 <h3 class="text-xl font-semibold text-gray-800 mb-3">
-                  {{ item.title?.[locale] ?? item.title?.en }}
+                  {{ item.title?.[locale] ?? item.title?.zh }}
                 </h3>
                 <p class="text-gray-600 mb-4 line-clamp-3">
-                  {{ item.summary?.[locale] ?? item.summary?.en }}
+                  {{ item.summary?.[locale] ?? item.summary?.zh }}
                 </p>
                 <nuxt-link
                   :to="newsLink(item)"
@@ -184,22 +188,24 @@
                 :to="newsLink(item)"
                 class="bg-white rounded-lg p-4 shadow-sm hover:shadow-lg transition-all duration-300 flex"
               >
-                <img
+                <nuxt-img
+                  format="webp"
+                  loading="lazy"
                   :src="item.coverImage || ''"
-                  :alt="item.title?.[locale] ?? item.title?.en"
+                  :alt="item.title?.[locale] ?? item.title?.zh"
                   class="w-20 h-20 object-cover rounded-md flex-shrink-0"
                 />
                 <div class="ml-4 flex-grow">
                   <div class="flex items-center text-sm text-gray-500 mb-1">
                     <span>{{ item.publishTime }}</span>
                     <span class="mx-2">|</span>
-                    <span>{{ item.category?.categoryName?.[locale] ?? item.category?.categoryName?.en }}</span>
+                    <span>{{ item.category?.categoryName?.[locale] ?? item.category?.categoryName?.zh }}</span>
                   </div>
                   <h3 class="text-lg font-medium text-gray-800 mb-1 line-clamp-1">
-                    {{ item.title?.[locale] ?? item.title?.en }}
+                    {{ item.title?.[locale] ?? item.title?.zh }}
                   </h3>
                   <p class="text-gray-600 text-sm line-clamp-2">
-                    {{ item.summary?.[locale] ?? item.summary?.en }}
+                    {{ item.summary?.[locale] ?? item.summary?.zh }}
                   </p>
                 </div>
               </nuxt-link>
@@ -230,7 +236,9 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div>
-            <img
+            <nuxt-img
+              format="webp"
+              loading="lazy"
               src="https://picsum.photos/id/1082/800/600"
               :alt="t('home.about.title')"
               class="w-full rounded-lg shadow-lg"
