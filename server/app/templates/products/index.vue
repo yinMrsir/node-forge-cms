@@ -195,14 +195,16 @@
       query: {
         parentCategoryId: categoryId,
         status: '1'
-      }
+      },
+      getCachedData: key => localCacheData(key)
     }),
     useFetch('/api/public/cms/product/list', {
       query: {
         categoryId,
         limit: pageSize,
         pageNum: currentPage
-      }
+      },
+      getCachedData: key => localCacheData(key)
     })
   ]);
 

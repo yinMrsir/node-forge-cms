@@ -5,7 +5,7 @@ export const localCacheData = (key: string, minute: number = 30) => {
     return;
   }
   const expirationDate = new Date(data.fetchedAt);
-  // 缓存时间30分钟
+  // 缓存时间60分钟
   expirationDate.setTime(expirationDate.getTime() + minute * 60 * 1000);
   const isExpired = expirationDate.getTime() < Date.now();
   if (isExpired) {

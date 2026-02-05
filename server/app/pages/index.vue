@@ -515,82 +515,44 @@
   const { locale } = useI18n();
   const localePath = useLocalePath();
 
-  // 获取首页SEO配置
-  const [{ t }, { data: seoData }] = await Promise.all([
+  const [
+    { t },
+    { data: seoData },
+    { data: bannerListData },
+    { data: productListData },
+    { data: newsData },
+    { data: topNewsData }
+  ]: any = await Promise.all([
     useI18nLoader(),
     useFetch('/api/public/cms/seo/get', {
-      query: { pageType: 'home' }
+      query: { pageType: 'home' },
+      getCachedData: key => localCacheData(key)
+    }),
+    useFetch('/api/public/cms/banner/list', {
+      getCachedData: key => localCacheData(key)
+    }),
+    useFetch('/api/public/cms/product/list', {
+      query: {
+        isRecommend: '1',
+        limit: 3
+      },
+      getCachedData: key => localCacheData(key)
+    }),
+    useFetch('/api/public/cms/news/list', {
+      query: {
+        isRecommend: '1',
+        limit: 3
+      },
+      getCachedData: key => localCacheData(key)
+    }),
+    useFetch('/api/public/cms/news/list', {
+      query: {
+        isTop: '1',
+        limit: 1
+      },
+      getCachedData: key => localCacheData(key)
     })
   ]);
-
-  // 设置SEO meta标签
-  const seoConfig = seoData.value?.data;
-  const currentLocale = locale.value as 'zh' | 'en';
-
-  const defaultTitle = {
-    zh: '',
-    en: ''
-  };
-  const defaultDescription = {
-    zh: '',
-    en: ''
-  };
-  const defaultKeywords = {
-    zh: '',
-    en: ''
-  };
-
-  // 获取当前语言的SEO配置
-  const getTitle = () =>
-    seoConfig?.title?.[currentLocale] || seoConfig?.title?.zh || defaultTitle[currentLocale] || defaultTitle.zh;
-  const getKeywords = () =>
-    seoConfig?.keywords?.[currentLocale] ||
-    seoConfig?.keywords?.zh ||
-    defaultKeywords[currentLocale] ||
-    defaultKeywords.zh;
-  const getDescription = () =>
-    seoConfig?.description?.[currentLocale] ||
-    seoConfig?.description?.zh ||
-    defaultDescription[currentLocale] ||
-    defaultDescription.zh;
-  const getOgTitle = () => seoConfig?.ogTitle?.[currentLocale] || seoConfig?.ogTitle?.zh || getTitle();
-  const getOgDescription = () =>
-    seoConfig?.ogDescription?.[currentLocale] || seoConfig?.ogDescription?.zh || getDescription();
-
-  useHead({
-    title: getTitle(),
-    meta: [
-      { name: 'description', content: getDescription() },
-      { name: 'keywords', content: getKeywords() },
-      { property: 'og:title', content: getOgTitle() },
-      { property: 'og:description', content: getOgDescription() },
-      { property: 'og:image', content: seoConfig?.ogImage || '/favicon.png' },
-      { property: 'og:type', content: 'website' }
-    ]
-  });
-
-  const [{ data: bannerListData }, { data: productListData }, { data: newsData }, { data: topNewsData }]: any =
-    await Promise.all([
-      useFetch('/api/public/cms/banner/list'),
-      useFetch('/api/public/cms/product/list', {
-        query: {
-          isRecommend: '1',
-          limit: 3
-        }
-      }),
-      useFetch('/api/public/cms/news/list', {
-        query: {
-          isRecommend: '1',
-          limit: 3
-        }
-      }),
-      useFetch('/api/public/cms/news/list', {
-        query: {
-          isTop: '1',
-          limit: 1
-        }
-      })
-    ]);
 
   // 联系表单
   const contactForm = ref({
@@ -650,6 +612,52 @@
     });
     return localePath(`${categoryUrl}/${news.newsId}`);
   }
+
+  // 设置SEO meta标签
+  const seoConfig = seoData.value?.data;
+  const currentLocale = locale.value as 'zh' | 'en';
+
+  const defaultTitle = {
+    zh: '',
+    en: ''
+  };
+  const defaultDescription = {
+    zh: '',
+    en: ''
+  };
+  const defaultKeywords = {
+    zh: '',
+    en: ''
+  };
+
+  // 获取当前语言的SEO配置
+  const getTitle = () =>
+    seoConfig?.title?.[currentLocale] || seoConfig?.title?.zh || defaultTitle[currentLocale] || defaultTitle.zh;
+  const getKeywords = () =>
+    seoConfig?.keywords?.[currentLocale] ||
+    seoConfig?.keywords?.zh ||
+    defaultKeywords[currentLocale] ||
+    defaultKeywords.zh;
+  const getDescription = () =>
+    seoConfig?.description?.[currentLocale] ||
+    seoConfig?.description?.zh ||
+    defaultDescription[currentLocale] ||
+    defaultDescription.zh;
+  const getOgTitle = () => seoConfig?.ogTitle?.[currentLocale] || seoConfig?.ogTitle?.zh || getTitle();
+  const getOgDescription = () =>
+    seoConfig?.ogDescription?.[currentLocale] || seoConfig?.ogDescription?.zh || getDescription();
+
+  useHead({
+    title: getTitle(),
+    meta: [
+      { name: 'description', content: getDescription() },
+      { name: 'keywords', content: getKeywords() },
+      { property: 'og:title', content: getOgTitle() },
+      { property: 'og:description', content: getOgDescription() },
+      { property: 'og:image', content: seoConfig?.ogImage || '/favicon.png' },
+      { property: 'og:type', content: 'website' }
+    ]
+  });
 </script>
 
 <style scoped></style>

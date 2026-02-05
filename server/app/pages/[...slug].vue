@@ -81,7 +81,9 @@
 
     // 如果只有一段，直接查询 urlKey
     if (segmentsForLookup.length === 1) {
-      const { data: result }: any = await useFetch('/api/public/cms/category/by-urlkey/' + segmentsForLookup[0]);
+      const { data: result }: any = await useFetch('/api/public/cms/category/by-urlkey/' + segmentsForLookup[0], {
+        getCachedData: key => localCacheData(key)
+      });
       return result.value?.data || null;
     }
 
@@ -91,7 +93,8 @@
       method: 'POST',
       body: {
         pathSegments: segmentsForLookup
-      }
+      },
+      getCachedData: key => localCacheData(key)
     });
 
     return result.value?.data || null;

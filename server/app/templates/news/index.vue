@@ -190,14 +190,16 @@
       query: {
         parentCategoryId: categoryId,
         status: '1'
-      }
+      },
+      getCachedData: key => localCacheData(key)
     }),
     useFetch('/api/public/cms/news/list', {
       query: {
         categoryId,
         limit: pageSize,
         pageNum: currentPage
-      }
+      },
+      getCachedData: key => localCacheData(key)
     })
   ]);
   const totalPages = ref(Math.ceil((newsData.value?.total || 0) / pageSize));

@@ -91,13 +91,15 @@
         parentCategoryId:
           props.category.parentCategoryId === 0 ? props.category.categoryId : props.category.parentCategoryId,
         delFlag: '0'
-      }
+      },
+      getCachedData: key => localCacheData(key)
     }),
     useFetch('/api/public/cms/content/by-categoryId', {
       query: {
         categoryId: props.category.categoryId,
         locale: locale.value
-      }
+      },
+      getCachedData: key => localCacheData(key)
     })
   ]);
   function categoryLink(categoryMpath: any[]) {

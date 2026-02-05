@@ -118,7 +118,9 @@
   // 获取产品详情
   const [{ t }, { data: productDetail }]: any = await Promise.all([
     useI18nLoader(),
-    useFetch('/api/public/cms/product/' + productId.value)
+    useFetch('/api/public/cms/product/' + productId.value, {
+      getCachedData: key => localCacheData(key)
+    })
   ]);
 
   // 产品名称

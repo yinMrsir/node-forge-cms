@@ -168,7 +168,9 @@
 
   const [{ t }, { data: newsDetail }]: any = await Promise.all([
     useI18nLoader(),
-    useFetch('/api/public/cms/news/' + newsId.value)
+    useFetch('/api/public/cms/news/' + newsId.value, {
+      getCachedData: key => localCacheData(key)
+    })
   ]);
 
   if (newsDetail.value) {
