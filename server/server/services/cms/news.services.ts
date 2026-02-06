@@ -106,7 +106,13 @@ export class NewsServices {
 
   /* 分页查询已发布新闻 */
   async publicList(
-    params: queryParams & { categoryId?: number; title?: string; isRecommend?: string; isTop?: string }
+    params: queryParams & {
+      categoryId?: number;
+      title?: string;
+      keywords?: string;
+      isRecommend?: string;
+      isTop?: string;
+    }
   ) {
     const { pageNum = 1, limit = 10 } = params;
     const offset = (pageNum - 1) * limit;
@@ -140,9 +146,26 @@ export class NewsServices {
         whereList.push(eq(newsTable.categoryId, params.categoryId));
       }
     }
-    if (params.title) {
-      whereList.push(like(newsTable.title, `%${params.title}%`));
+
+    // 搜索标题或关键词
+    const searchKeyword = params.title || params.keywords;
+    if (searchKeyword) {
+      // 使用 JSON_CONTAINS 搜索 JSON 字段中的中文或英文内容
+      // 在 MySQL 中，JSON_CONTAINS 可以搜索 JSON 字段
+      whereList.push(
+        sql`(
+          JSON_CONTAINS(${newsTable.title}, JSON_QUOTE(${searchKeyword}), '$.zh') OR
+          JSON_CONTAINS(${newsTable.title}, JSON_QUOTE(${searchKeyword}), '$.en') OR
+          JSON_CONTAINS(${newsTable.title}, CONCAT('"%', ${searchKeyword}, '%"'), '$.zh') OR
+          JSON_CONTAINS(${newsTable.title}, CONCAT('"%', ${searchKeyword}, '%"'), '$.en') OR
+          JSON_CONTAINS(${newsTable.summary}, JSON_QUOTE(${searchKeyword}), '$.zh') OR
+          JSON_CONTAINS(${newsTable.summary}, JSON_QUOTE(${searchKeyword}), '$.en') OR
+          JSON_CONTAINS(${newsTable.summary}, CONCAT('"%', ${searchKeyword}, '%"'), '$.zh') OR
+          JSON_CONTAINS(${newsTable.summary}, CONCAT('"%', ${searchKeyword}, '%"'), '$.en')
+        )`
+      );
     }
+
     if (params.isRecommend) {
       whereList.push(eq(newsTable.isRecommend, params.isRecommend));
     }

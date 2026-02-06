@@ -42,18 +42,24 @@
         <!-- 搜索+筛选 -->
         <div class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div class="flex items-center bg-white rounded-md shadow-sm w-full md:w-auto">
-            <input
-              v-model="searchKey"
-              type="text"
-              :placeholder="t('news.searchPlaceholder')"
-              class="px-4 py-2 flex-grow outline-none border-none rounded-l-md"
-            />
-            <button
-              class="px-4 py-2 bg-primary text-white rounded-r-md hover:bg-primary/90 transition-colors"
+            <el-button
+              type="primary"
+              size="large"
+              plain
+              class="text-white rounded-md hover:bg-primary/90 transition-colors flex items-center"
               @click="handleSearch"
             >
-              {{ t('common.search') }}
-            </button>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5 mr-2"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              {{ t('common.aiSearch') || 'AI 智能搜索' }}
+            </el-button>
           </div>
           <div class="flex flex-wrap gap-2">
             <nuxt-link
@@ -168,6 +174,7 @@
   }>();
 
   const route = useRoute();
+  const router = useRouter();
   const { locale } = useI18n();
   const localePath = useLocalePath();
 
@@ -227,7 +234,9 @@
   }
 
   // 搜索事件
-  const handleSearch = () => {};
+  const handleSearch = () => {
+    router.push(localePath({ path: '/search' }));
+  };
 
   useHead({
     title: pageTitle(categoryName),

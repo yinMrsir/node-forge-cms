@@ -8,6 +8,7 @@ export default defineEventHandler(async event => {
   const query = getQuery(event);
   const data = await newsServices.publicList(query);
 
+  // 为每条新闻添加完整的分类路径信息
   for (const item of data.rows) {
     if (item.category && item.category.mpath) {
       const categoryIds = item.category.mpath.split('.').filter(id => Boolean(id));
