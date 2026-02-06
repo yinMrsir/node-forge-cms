@@ -316,6 +316,7 @@
           <nuxt-link
             v-for="news in searchResults"
             :key="news.newsId"
+            target="_blank"
             class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer group"
             :to="newsLink(news)"
           >
