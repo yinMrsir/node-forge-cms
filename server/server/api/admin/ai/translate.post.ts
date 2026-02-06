@@ -21,13 +21,13 @@ export default defineEventHandler(async event => {
     }
 
     // 验证目标语言代码
-    const validLangs = ['zh', 'en', 'ja', 'ko', 'fr', 'de', 'es', 'pt', 'ru', 'ar'];
-    if (!validLangs.includes(targetLang)) {
-      throw createError({
-        statusCode: 400,
-        message: `不支持的目标语言代码: ${targetLang}。支持的语言: ${validLangs.join(', ')}`
-      });
-    }
+    // const validLangs = ['zh', 'en', 'ja', 'ko', 'fr', 'de', 'es', 'pt', 'ru', 'ar'];
+    // if (!validLangs.includes(targetLang)) {
+    //   throw createError({
+    //     statusCode: 400,
+    //     message: `不支持的目标语言代码: ${targetLang}。支持的语言: ${validLangs.join(', ')}`
+    //   });
+    // }
 
     // 调用翻译服务
     const translateService = new AITranslateService();

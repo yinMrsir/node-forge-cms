@@ -182,6 +182,16 @@ export default defineNuxtConfig({
     // 服务器域名 用户支付回调， 邮件等信息
     serverHost: process.env.SERVER_HOST || 'http://localhost:3000',
     // 上传图片访问host
-    imgHost: process.env.IMG_HOST || 'http://localhost:3000'
+    imgHost: process.env.IMG_HOST || 'http://localhost:3000',
+    // 是否演示环境
+    isDemoEnvironment: process.env.IS_DEMO_ENVIRONMENT === 'true',
+    // 邮箱配置
+    email: {
+      service: process.env.USER_EMAIL_SERVICE || 'QQ',
+      auth: {
+        user: process.env.FORM_USER_EMAIL || '',
+        pass: process.env.FORM_USER_EMAIL_PASSWORD || ''
+      }
+    }
   }
 });

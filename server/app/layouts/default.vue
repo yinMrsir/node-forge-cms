@@ -91,12 +91,12 @@
               >
                 <button
                   v-for="lang in localesData"
-                  :key="lang.localeCode"
+                  :key="lang.code"
                   class="bg-transparent block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
                   :class="{ 'bg-primary/10 text-primary': lang.localeCode === locale }"
-                  @click="switchLanguage(lang.localeCode)"
+                  @click="switchLanguage(lang.code)"
                 >
-                  {{ lang.localeName }}
+                  {{ lang.name }}
                 </button>
               </div>
             </div>
@@ -132,14 +132,12 @@
             <div class="flex gap-3 flex-wrap">
               <button
                 v-for="lang in localesData"
-                :key="lang.localeCode"
+                :key="lang.code"
                 class="px-3 py-1 text-sm rounded-md transition-colors"
-                :class="
-                  lang.localeCode === locale ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                "
-                @click="switchLanguage(lang.localeCode)"
+                :class="lang.code === locale ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
+                @click="switchLanguage(lang.code)"
               >
-                {{ lang.localeName }}
+                {{ lang.name }}
               </button>
             </div>
           </div>
