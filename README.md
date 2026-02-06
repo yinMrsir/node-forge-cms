@@ -74,39 +74,6 @@ NodeForgeCMS 是基于 **Nuxt4 + Node.js + MySQL** 打造的现代化企业级�
 | **API接口**  | RESTful API、开放接口、支持二次开发          |
 | **部署方式** | 静态导出、Node服务、Docker容器               |
 
-## 仓库 Topics 建议（请在 GitHub/Gitee 仓库设置中添加）
-
-**GitHub Topics（仅支持英文，每行一个，最多 20 个）：**
-
-```
-cms
-content-management
-nuxt4
-vue3
-nodejs
-typescript
-mysql
-enterprise-website
-website-builder
-seo
-i18n
-multi-language
-ai-search
-ai-translation
-ssr
-ssg
-admin-panel
-web-app
-fullstack
-javascript
-```
-
-**注意：**
-- GitHub Topics 不支持中文字符
-- 每个 Topic 必须小写字母或数字开头
-- 每个 Topic 不超过 50 个字符
-- 建议在 Gitee 仓库中也添加相同的 Topics
-
 ## 在线体验(网络带宽有限，请耐心等待 🍵)
 
 - [用户端演示地址](http://node-forge.yinchunyu.com)
