@@ -20,6 +20,7 @@ import * as bannerSchema from './cms/banner';
 import * as contactSchema from './cms/contact';
 import * as seoSchema from './cms/seo';
 import * as i18nSchema from './system/i18n';
+import * as aiConfigSchema from './system/aiConfig';
 
 export default {
   ...userSchema,
@@ -43,5 +44,6 @@ export default {
   ...bannerSchema,
   ...contactSchema,
   ...seoSchema,
-  ...i18nSchema
+  ...i18nSchema,
+  ...aiConfigSchema
 };

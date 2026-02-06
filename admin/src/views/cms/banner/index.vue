@@ -95,24 +95,70 @@
         <el-tabs v-model="activeTab">
           <el-tab-pane :label="item.name" :name="item.code" v-for="item in locales" :key="item.code">
             <el-form-item :label="`标题(${item.name})`" :prop="`title.${item.code}`">
-              <el-input v-model="form.title[item.code]" :placeholder="`请输入标题(${item.name})`" />
+              <div style="display: flex; gap: 8px; flex: 1">
+                <el-input v-model="form.title[item.code]" :placeholder="`请输入标题(${item.name})`" style="flex: 1" />
+                <el-button
+                  v-if="item.code !== 'zh' && form.title?.zh"
+                  type="primary"
+                  :icon="icons.MagicStick"
+                  :loading="translating.title"
+                  @click="handleTranslate('title', item.code)"
+                  title="AI翻译"
+                >
+                  AI翻译
+                </el-button>
+              </div>
             </el-form-item>
             <el-form-item :label="`描述(${item.name})`">
-              <el-input
-                v-model="form.description[item.code]"
-                type="textarea"
-                :rows="3"
-                :placeholder="`请输入描述(${item.name})`"
-              />
+              <div style="display: flex; gap: 8px; flex: 1">
+                <el-input
+                  v-model="form.description[item.code]"
+                  type="textarea"
+                  :rows="3"
+                  :placeholder="`请输入描述(${item.name})`"
+                  style="flex: 1"
+                />
+                <el-button
+                  v-if="item.code !== 'zh' && form.description?.zh"
+                  type="primary"
+                  :icon="icons.MagicStick"
+                  :loading="translating.description"
+                  @click="handleTranslate('description', item.code)"
+                  title="AI翻译"
+                >
+                  AI翻译
+                </el-button>
+              </div>
             </el-form-item>
             <el-form-item :label="`按钮文字(${item.name})`">
-              <el-input
-                v-model="form.buttonText[item.code]"
-                :placeholder="`请输入按钮文字(${item.name})，如：查看详情`"
-              />
+              <div style="display: flex; gap: 8px; flex: 1">
+                <el-input
+                  v-model="form.buttonText[item.code]"
+                  :placeholder="`请输入按钮文字(${item.name})，如：查看详情`"
+                  style="flex: 1"
+                />
+                <el-button
+                  v-if="item.code !== 'zh' && form.buttonText?.zh"
+                  type="primary"
+                  :icon="icons.MagicStick"
+                  :loading="translating.buttonText"
+                  @click="handleTranslate('buttonText', item.code)"
+                  title="AI翻译"
+                >
+                  AI翻译
+                </el-button>
+              </div>
             </el-form-item>
           </el-tab-pane>
         </el-tabs>
+
+        <!-- 一键翻译所有语言按钮 -->
+        <el-form-item v-if="hasNonZhLanguages">
+          <el-button type="success" :icon="icons.MagicStick" :loading="translating.all" @click="handleTranslateAll">
+            一键翻译所有语言
+          </el-button>
+          <span style="margin-left: 10px; color: #999; font-size: 12px"> 将中文内容翻译成所有其他语言 </span>
+        </el-form-item>
 
         <el-form-item label="图片地址" prop="imageUrl">
           <image-upload v-model="form.imageUrl" :limit="1" />
@@ -147,9 +193,12 @@
   import ImageUpload from '@/components/ImageUpload';
   import { listBanner, getBanner, addBanner, updateBanner, delBanner, changeBannerStatus } from '@/api/cms/banner';
   import { useListLocale } from '@/hooks/useListLocale';
+  import { translateText } from '@/api/ai';
+  import * as ElementPlusIconsVue from '@element-plus/icons-vue';
 
   const { locales } = useListLocale();
   const { proxy } = getCurrentInstance();
+  const icons = ElementPlusIconsVue;
 
   const bannerList = ref([]);
   const open = ref(false);
@@ -158,6 +207,14 @@
   const activeTab = ref('zh');
   const title = ref('');
   const total = ref(0);
+
+  // 翻译状态
+  const translating = reactive({
+    title: false,
+    description: false,
+    buttonText: false,
+    all: false
+  });
 
   const data = reactive({
     form: {},
@@ -173,6 +230,11 @@
   });
 
   const { queryParams, form, rules } = toRefs(data);
+
+  // 计算是否有非中文语言
+  const hasNonZhLanguages = computed(() => {
+    return locales.value.some(locale => locale.code !== 'zh');
+  });
 
   /** 查询轮播图列表 */
   function getList() {
@@ -289,6 +351,112 @@
         proxy.$modal.msgSuccess('删除成功');
       })
       .catch(() => {});
+  }
+
+  /** AI翻译单个字段 */
+  async function handleTranslate(field, targetLang) {
+    const sourceText = form.value[field]?.zh;
+    if (!sourceText || !sourceText.trim()) {
+      proxy.$modal.msgWarning('请先输入中文内容');
+      return;
+    }
+
+    translating[field] = true;
+    try {
+      const response = await translateText({
+        text: sourceText,
+        targetLang: targetLang
+      });
+
+      if (response.data && response.data.translatedText) {
+        form.value[field][targetLang] = response.data.translatedText;
+        proxy.$modal.msgSuccess('翻译成功');
+      } else {
+        proxy.$modal.msgError('翻译失败，请重试');
+      }
+    } catch (error) {
+      console.error('AI翻译错误:', error);
+      proxy.$modal.msgError(error.message || '翻译失败，请检查AI配置');
+    } finally {
+      translating[field] = false;
+    }
+  }
+
+  /** AI翻译所有字段 */
+  async function handleTranslateAll() {
+    // 检查是否有中文内容
+    const hasChineseContent =
+      (form.value.title?.zh && form.value.title.zh.trim()) ||
+      (form.value.description?.zh && form.value.description.zh.trim()) ||
+      (form.value.buttonText?.zh && form.value.buttonText.zh.trim());
+
+    if (!hasChineseContent) {
+      proxy.$modal.msgWarning('请先输入中文内容');
+      return;
+    }
+
+    translating.all = true;
+    const nonZhLocales = locales.value.filter(locale => locale.code !== 'zh');
+
+    try {
+      // 逐个语言翻译
+      for (const locale of nonZhLocales) {
+        // 翻译标题
+        if (form.value.title?.zh && form.value.title.zh.trim()) {
+          try {
+            const titleResponse = await translateText({
+              text: form.value.title.zh,
+              targetLang: locale.code
+            });
+            if (titleResponse.data?.translatedText) {
+              form.value.title[locale.code] = titleResponse.data.translatedText;
+            }
+          } catch (e) {
+            console.error(`翻译标题到${locale.name}失败:`, e);
+          }
+        }
+
+        // 翻译描述
+        if (form.value.description?.zh && form.value.description.zh.trim()) {
+          try {
+            const descResponse = await translateText({
+              text: form.value.description.zh,
+              targetLang: locale.code
+            });
+            if (descResponse.data?.translatedText) {
+              form.value.description[locale.code] = descResponse.data.translatedText;
+            }
+          } catch (e) {
+            console.error(`翻译描述到${locale.name}失败:`, e);
+          }
+        }
+
+        // 翻译按钮文字
+        if (form.value.buttonText?.zh && form.value.buttonText.zh.trim()) {
+          try {
+            const btnResponse = await translateText({
+              text: form.value.buttonText.zh,
+              targetLang: locale.code
+            });
+            if (btnResponse.data?.translatedText) {
+              form.value.buttonText[locale.code] = btnResponse.data.translatedText;
+            }
+          } catch (e) {
+            console.error(`翻译按钮文字到${locale.name}失败:`, e);
+          }
+        }
+
+        // 添加延迟避免请求过快
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+
+      proxy.$modal.msgSuccess('批量翻译完成');
+    } catch (error) {
+      console.error('批量翻译错误:', error);
+      proxy.$modal.msgError(error.message || '批量翻译失败');
+    } finally {
+      translating.all = false;
+    }
   }
 
   getList();
