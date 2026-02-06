@@ -55,7 +55,7 @@ export async function useI18nLoader() {
   }
 
   // 响应式的 t 函数
-  const t = (key: string) => {
+  const t = (key: string, options?: any) => {
     const currentLocale = nuxtApp.$i18n.locale.value;
     const translations = languages.value.get(currentLocale) || {};
 
@@ -70,6 +70,12 @@ export async function useI18nLoader() {
         return key; // 找不到对应 key，返回原始 key
       }
     }
+
+    options &&
+      typeof options === 'object' &&
+      Object.keys(options).forEach(key => {
+        value = value.replaceAll(`{${key}}`, options[key]);
+      });
 
     return value;
   };

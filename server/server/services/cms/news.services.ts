@@ -1,4 +1,4 @@
-import { and, eq, like, desc, inArray, sql, lt, gt } from 'drizzle-orm';
+import { and, eq, like, desc, inArray, sql, lt, gt, or } from 'drizzle-orm';
 import { queryParams } from '~~/server/db/query.helper';
 import { News, newsTable, NewNews } from '~~/server/db/schema/cms/news';
 import { categoryTable } from '~~/server/db/schema/cms/category';
@@ -109,7 +109,7 @@ export class NewsServices {
     params: queryParams & {
       categoryId?: number;
       title?: string;
-      keywords?: string;
+      keywords?: string | string[];
       isRecommend?: string;
       isTop?: string;
     }
@@ -147,23 +147,36 @@ export class NewsServices {
       }
     }
 
-    // 搜索标题或关键词
-    const searchKeyword = params.title || params.keywords;
-    if (searchKeyword) {
-      // 使用 JSON_CONTAINS 搜索 JSON 字段中的中文或英文内容
-      // 在 MySQL 中，JSON_CONTAINS 可以搜索 JSON 字段
-      whereList.push(
-        sql`(
-          JSON_CONTAINS(${newsTable.title}, JSON_QUOTE(${searchKeyword}), '$.zh') OR
-          JSON_CONTAINS(${newsTable.title}, JSON_QUOTE(${searchKeyword}), '$.en') OR
-          JSON_CONTAINS(${newsTable.title}, CONCAT('"%', ${searchKeyword}, '%"'), '$.zh') OR
-          JSON_CONTAINS(${newsTable.title}, CONCAT('"%', ${searchKeyword}, '%"'), '$.en') OR
-          JSON_CONTAINS(${newsTable.summary}, JSON_QUOTE(${searchKeyword}), '$.zh') OR
-          JSON_CONTAINS(${newsTable.summary}, JSON_QUOTE(${searchKeyword}), '$.en') OR
-          JSON_CONTAINS(${newsTable.summary}, CONCAT('"%', ${searchKeyword}, '%"'), '$.zh') OR
-          JSON_CONTAINS(${newsTable.summary}, CONCAT('"%', ${searchKeyword}, '%"'), '$.en')
-        )`
-      );
+    // 搜索标题或关键词（支持数组多关键词 OR 搜索）
+    const searchKeywords = params.title || params.keywords;
+    if (searchKeywords) {
+      // 将关键词转换为数组
+      const keywordList = Array.isArray(searchKeywords) ? searchKeywords : [searchKeywords];
+
+      // 过滤空字符串
+      const validKeywords = keywordList.filter(k => k && k.trim().length > 0);
+
+      if (validKeywords.length > 0) {
+        // 使用 SQL LIKE 进行模糊搜索，支持多关键词 OR 逻辑
+        // 为每个关键词构建标题和摘要的搜索条件（扁平化为单一条件列表）
+        const allConditions = validKeywords.flatMap(keyword => {
+          const likePattern = `%${keyword}%`;
+          return [
+            sql`JSON_EXTRACT(${newsTable.title}, '$.zh') LIKE ${likePattern}`,
+            sql`JSON_EXTRACT(${newsTable.title}, '$.en') LIKE ${likePattern}`,
+            sql`JSON_EXTRACT(${newsTable.summary}, '$.zh') LIKE ${likePattern}`,
+            sql`JSON_EXTRACT(${newsTable.summary}, '$.en') LIKE ${likePattern}`
+          ];
+        });
+
+        // 使用 OR 连接所有条件，使用非空断言确保类型正确
+        if (allConditions.length > 0) {
+          const orCondition = or(...allConditions);
+          if (orCondition) {
+            whereList.push(orCondition);
+          }
+        }
+      }
     }
 
     if (params.isRecommend) {
