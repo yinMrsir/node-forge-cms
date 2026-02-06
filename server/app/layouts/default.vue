@@ -85,15 +85,18 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
-              <div v-if="showLanguageMenu" class="absolute right-0 mt-2 w-32 bg-white rounded-md shadow-lg py-1 z-50">
+              <div
+                v-if="showLanguageMenu"
+                class="absolute right-0 mt-2 w-32 bg-white rounded-md shadow-lg py-1 z-50 max-h-100 overflow-y-auto"
+              >
                 <button
-                  v-for="lang in locales"
-                  :key="lang.code"
+                  v-for="lang in localesData"
+                  :key="lang.localeCode"
                   class="bg-transparent block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
-                  :class="{ 'bg-primary/10 text-primary': lang.code === locale }"
-                  @click="switchLanguage(lang.code)"
+                  :class="{ 'bg-primary/10 text-primary': lang.localeCode === locale }"
+                  @click="switchLanguage(lang.localeCode)"
                 >
-                  {{ lang.name }}
+                  {{ lang.localeName }}
                 </button>
               </div>
             </div>
@@ -126,15 +129,17 @@
           <!-- 移动端语言切换 -->
           <div class="border-t pt-3">
             <div class="text-sm text-gray-500 mb-2">{{ t('nav.language') }}</div>
-            <div class="flex gap-3">
+            <div class="flex gap-3 flex-wrap">
               <button
-                v-for="lang in locales"
-                :key="lang.code"
+                v-for="lang in localesData"
+                :key="lang.localeCode"
                 class="px-3 py-1 text-sm rounded-md transition-colors"
-                :class="lang.code === locale ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
-                @click="switchLanguage(lang.code)"
+                :class="
+                  lang.localeCode === locale ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                "
+                @click="switchLanguage(lang.localeCode)"
               >
-                {{ lang.name }}
+                {{ lang.localeName }}
               </button>
             </div>
           </div>
@@ -286,7 +291,7 @@
 </template>
 
 <script setup>
-  const { locale, locales, setLocale } = useI18n();
+  const { locale, setLocale } = useI18n();
   const localePath = useLocalePath();
   const route = useRoute();
 
@@ -299,32 +304,37 @@
     return route.path === '/ai-search' || route.path === '/zh/ai-search' || route.path.endsWith('/ai-search');
   });
 
-  // 当前语言名称
-  const currentLanguage = computed(() => {
-    return locales.value.find(lang => lang.code === locale.value)?.name || 'Language';
-  });
-
   // 切换语言
   const switchLanguage = langCode => {
     setLocale(langCode);
     showLanguageMenu.value = false;
   };
 
-  const [{ t }, { data: categoryList }, { data: recommendCategoryList }] = await Promise.all([
+  const [{ t }, { data: categoryList }, { data: recommendCategoryList }, { data: localesData }] = await Promise.all([
     useI18nLoader(),
     useFetch('/api/public/cms/category/list', {
       query: {
         parentCategoryId: 0,
         status: '1'
-      }
+      },
+      getCachedData: key => localCacheData(key)
     }),
     useFetch('/api/public/cms/category/list', {
       query: {
         isRecommend: '1',
         status: '1'
-      }
+      },
+      getCachedData: key => localCacheData(key)
+    }),
+    useFetch('/api/public/i18n/list', {
+      getCachedData: key => localCacheData(key)
     })
   ]);
+
+  // 当前语言名称
+  const currentLanguage = computed(() => {
+    return localesData.value?.find(lang => lang.code === locale.value)?.name || 'Language';
+  });
 
   function categoryLink(categoryMpath) {
     let categoryUrl = '';

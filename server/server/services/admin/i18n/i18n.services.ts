@@ -39,22 +39,17 @@ export class I18nServices {
   /**
    * 获取所有可用的语言列表
    */
-  async getLocales(status?: string): Promise<LocaleInfo[]> {
-    const conditions = status !== undefined ? [eq(i18nLocaleTable.status, status)] : [];
-    const result = await db
-      .select({
-        localeId: i18nLocaleTable.localeId,
-        code: i18nLocaleTable.localeCode,
-        name: i18nLocaleTable.localeName,
-        isDefault: i18nLocaleTable.isDefault,
-        icon: i18nLocaleTable.icon,
-        sortOrder: i18nLocaleTable.sortOrder,
-        status: i18nLocaleTable.status
-      })
-      .from(i18nLocaleTable)
-      .where(and(...conditions))
-      .orderBy(asc(i18nLocaleTable.sortOrder));
-
+  async getLocales(status?: string) {
+    const result = await db.query.i18nLocaleTable.findMany({
+      columns: {
+        localeId: true,
+        localeCode: true,
+        localeName: true,
+        icon: true
+      },
+      where: eq(i18nLocaleTable.status, status || '0'),
+      orderBy: [asc(i18nLocaleTable.sortOrder)]
+    });
     return result;
   }
 

@@ -10,7 +10,7 @@ export default defineEventHandler(async event => {
       localeCode: query.localeCode as string,
       localeName: query.localeName as string,
       status: query.status as string,
-      pageNum: parseInt(query.page as string),
+      pageNum: parseInt(query.pageNum as string),
       pageSize: parseInt(query.pageSize as string)
     });
     return createApiResponse(data);

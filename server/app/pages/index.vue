@@ -129,7 +129,7 @@
           <!-- 重点新闻 -->
           <div class="md:col-span-1">
             <div
-              v-for="item in topNewsData.rows"
+              v-for="item in topNewsData?.rows || []"
               :key="item.newsId"
               class="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
             >
@@ -183,7 +183,7 @@
             <div class="space-y-4">
               <!-- 新闻项1 -->
               <nuxt-link
-                v-for="item in newsData.rows"
+                v-for="item in newsData?.rows || []"
                 :key="item.newsId"
                 :to="newsLink(item)"
                 class="bg-white rounded-lg p-4 shadow-sm hover:shadow-lg transition-all duration-300 flex"

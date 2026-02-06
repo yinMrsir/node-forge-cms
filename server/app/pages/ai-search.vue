@@ -560,7 +560,7 @@
     searching.value = true;
 
     try {
-      const data = await $fetch('/api/public/cms/news/ai-search', {
+      const data: any = await $fetch('/api/public/cms/news/ai-search', {
         method: 'POST',
         body: {
           query: currentQuery.value,
@@ -642,7 +642,7 @@
 
   // 设置页面标题
   useHead({
-    title: currentQuery.value ? `${currentQuery.value} - ${t('common.search')}` : t('common.search')
+    title: pageTitle(currentQuery.value ? `${currentQuery.value} - ${t('common.search')}` : t('common.search'))
   });
 </script>
 
