@@ -7,7 +7,8 @@ const noVerificationRouters = [
   '/api/admin/captchaImage',
   '/api/admin/common/upload',
   '/api/admin/common/uploadChunk',
-  '/api/admin/common/mergeChunks'
+  '/api/admin/common/mergeChunks',
+  '/api/public/cms/contact'
 ];
 
 export default defineEventHandler(event => {
