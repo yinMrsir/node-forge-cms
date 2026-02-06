@@ -8,7 +8,9 @@ const noVerificationRouters = [
   '/api/admin/common/upload',
   '/api/admin/common/uploadChunk',
   '/api/admin/common/mergeChunks',
-  '/api/public/cms/contact'
+  '/api/public/cms/category/by-path',
+  '/api/public/cms/contact',
+  '/api/public/cms/news/ai-search'
 ];
 
 export default defineEventHandler(event => {
