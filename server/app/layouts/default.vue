@@ -2,6 +2,29 @@
   <div class="min-h-screen flex flex-col bg-gray-50">
     <NuxtLoadingIndicator :height="2" />
     <el-backtop :right="20" :bottom="70" />
+
+    <!-- 悬浮 AI 搜索按钮 -->
+    <ClientOnly>
+      <nuxt-link
+        v-if="!isAISearchPage"
+        :to="localePath('/ai-search')"
+        class="fixed right-6 bottom-40 z-50 flex items-center justify-center w-10 h-10 bg-gradient-to-r from-primary to-primary-dark text-white rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300 group"
+        :title="t('common.aiSearch') || 'AI 智能搜索'"
+      >
+        <!-- AI 图标 -->
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-7 w-7 group-hover:rotate-12 transition-transform duration-300"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+        <!-- 脉冲动画效果 -->
+        <span class="absolute inline-flex h-full w-full rounded-full bg-primary opacity-20 animate-ping"></span>
+      </nuxt-link>
+    </ClientOnly>
     <!-- 顶部导航栏 -->
     <header
       class="sticky top-0 z-50 bg-white shadow-sm transition-all duration-300"
@@ -265,10 +288,16 @@
 <script setup>
   const { locale, locales, setLocale } = useI18n();
   const localePath = useLocalePath();
+  const route = useRoute();
 
   const mobileMenuOpen = ref(false);
   const isScrolled = ref(false);
   const showLanguageMenu = ref(false);
+
+  // 判断当前是否为 AI 搜索页面
+  const isAISearchPage = computed(() => {
+    return route.path === '/ai-search' || route.path === '/zh/ai-search' || route.path.endsWith('/ai-search');
+  });
 
   // 当前语言名称
   const currentLanguage = computed(() => {
