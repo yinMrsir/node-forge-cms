@@ -4,7 +4,7 @@ export const useListLocale = () => {
   const objectLocale = ref({});
   listLocale().then(data => {
     locales.value = data.data;
-    deptObject.value = locales.value.reduce((acc, cur) => {
+    objectLocale.value = locales.value.reduce((acc, cur) => {
       acc[cur.code] = cur.name;
       return acc;
     }, {});

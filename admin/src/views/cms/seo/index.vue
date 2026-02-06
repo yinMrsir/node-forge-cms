@@ -13,55 +13,120 @@
 
       <el-form ref="formRef" :model="form" :rules="rules" label-width="120px">
         <el-form-item label="SEO标题" prop="title">
-          <el-input
-            v-model="form.title[activeLang]"
-            placeholder="请输入SEO标题，建议长度50-60个字符"
-            maxlength="200"
-            show-word-limit
-          />
+          <div style="display: flex; gap: 8px; flex: 1">
+            <el-input
+              v-model="form.title[activeLang]"
+              placeholder="请输入SEO标题，建议长度50-60个字符"
+              maxlength="200"
+              show-word-limit
+              style="flex: 1"
+            />
+            <el-button
+              v-if="activeLang !== 'zh' && form.title?.zh"
+              type="primary"
+              :icon="icons.MagicStick"
+              :loading="translating.title"
+              @click="handleTranslate('title', activeLang)"
+              title="AI翻译"
+            >
+              AI翻译
+            </el-button>
+          </div>
           <div class="form-tip">显示在浏览器标签页上的标题</div>
         </el-form-item>
         <el-form-item label="关键词" prop="keywords">
-          <el-input
-            v-model="form.keywords[activeLang]"
-            type="textarea"
-            :rows="2"
-            placeholder="请输入关键词，多个关键词用逗号分隔"
-            maxlength="500"
-            show-word-limit
-          />
+          <div style="display: flex; gap: 8px; flex: 1">
+            <el-input
+              v-model="form.keywords[activeLang]"
+              type="textarea"
+              :rows="2"
+              placeholder="请输入关键词，多个关键词用逗号分隔"
+              maxlength="500"
+              show-word-limit
+              style="flex: 1"
+            />
+            <el-button
+              v-if="activeLang !== 'zh' && form.keywords?.zh"
+              type="primary"
+              :icon="icons.MagicStick"
+              :loading="translating.keywords"
+              @click="handleTranslate('keywords', activeLang)"
+              title="AI翻译"
+            >
+              AI翻译
+            </el-button>
+          </div>
           <div class="form-tip">用于搜索引擎优化，多个关键词用英文逗号分隔</div>
         </el-form-item>
         <el-form-item label="描述" prop="description">
-          <el-input
-            v-model="form.description[activeLang]"
-            type="textarea"
-            :rows="3"
-            placeholder="请输入页面描述，建议长度150-160个字符"
-            maxlength="500"
-            show-word-limit
-          />
+          <div style="display: flex; gap: 8px; flex: 1">
+            <el-input
+              v-model="form.description[activeLang]"
+              type="textarea"
+              :rows="3"
+              placeholder="请输入页面描述，建议长度150-160个字符"
+              maxlength="500"
+              show-word-limit
+              style="flex: 1"
+            />
+            <el-button
+              v-if="activeLang !== 'zh' && form.description?.zh"
+              type="primary"
+              :icon="icons.MagicStick"
+              :loading="translating.description"
+              @click="handleTranslate('description', activeLang)"
+              title="AI翻译"
+            >
+              AI翻译
+            </el-button>
+          </div>
           <div class="form-tip">显示在搜索结果中的描述文字</div>
         </el-form-item>
         <el-divider content-position="left">社交媒体分享优化 (OG)</el-divider>
         <el-form-item label="分享标题">
-          <el-input
-            v-model="form.ogTitle[activeLang]"
-            placeholder="留空则使用SEO标题"
-            maxlength="200"
-            show-word-limit
-          />
+          <div style="display: flex; gap: 8px; flex: 1">
+            <el-input
+              v-model="form.ogTitle[activeLang]"
+              placeholder="留空则使用SEO标题"
+              maxlength="200"
+              show-word-limit
+              style="flex: 1"
+            />
+            <el-button
+              v-if="activeLang !== 'zh' && form.ogTitle?.zh"
+              type="primary"
+              :icon="icons.MagicStick"
+              :loading="translating.ogTitle"
+              @click="handleTranslate('ogTitle', activeLang)"
+              title="AI翻译"
+            >
+              AI翻译
+            </el-button>
+          </div>
           <div class="form-tip">分享到微信、微博等社交媒体时显示的标题</div>
         </el-form-item>
         <el-form-item label="分享描述">
-          <el-input
-            v-model="form.ogDescription[activeLang]"
-            type="textarea"
-            :rows="2"
-            placeholder="留空则使用页面描述"
-            maxlength="500"
-            show-word-limit
-          />
+          <div style="display: flex; gap: 8px; flex: 1">
+            <el-input
+              v-model="form.ogDescription[activeLang]"
+              type="textarea"
+              :rows="2"
+              placeholder="留空则使用页面描述"
+              maxlength="500"
+              show-word-limit
+              style="flex: 1"
+            />
+            <el-button
+              v-if="activeLang !== 'zh' && form.ogDescription?.zh"
+              type="primary"
+              :icon="icons.MagicStick"
+              :loading="translating.ogDescription"
+              @click="handleTranslate('ogDescription', activeLang)"
+              title="AI翻译"
+            >
+              AI翻译
+            </el-button>
+          </div>
           <div class="form-tip">分享到社交媒体时显示的描述</div>
         </el-form-item>
         <el-form-item label="分享图片">
@@ -71,6 +136,15 @@
         <el-form-item>
           <el-button type="primary" :loading="loading" @click="submitForm">保存配置</el-button>
           <el-button @click="resetForm">重置</el-button>
+          <el-button
+            v-if="hasNonZhLanguages"
+            type="success"
+            :icon="icons.MagicStick"
+            :loading="translating.all"
+            @click="handleTranslateAll"
+          >
+            一键翻译所有语言
+          </el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -80,13 +154,26 @@
 <script setup name="Seo">
   import { getSeoList, addSeo, updateSeo } from '@/api/cms/seo';
   import { useListLocale } from '@/hooks/useListLocale';
+  import { translateText } from '@/api/ai';
+  import * as ElementPlusIconsVue from '@element-plus/icons-vue';
 
   const { locales } = useListLocale();
   const { proxy } = getCurrentInstance();
+  const icons = ElementPlusIconsVue;
 
   const formRef = ref(null);
   const loading = ref(false);
   const activeLang = ref('zh');
+
+  // 翻译状态
+  const translating = reactive({
+    title: false,
+    keywords: false,
+    description: false,
+    ogTitle: false,
+    ogDescription: false,
+    all: false
+  });
 
   const form = ref({
     id: null,
@@ -98,6 +185,11 @@
     ogTitle: {},
     ogDescription: {},
     ogImage: ''
+  });
+
+  // 计算是否有非中文语言
+  const hasNonZhLanguages = computed(() => {
+    return locales.value.some(locale => locale.code !== 'zh');
   });
 
   // 初始化默认值
@@ -221,6 +313,83 @@
   function resetForm() {
     getConfig();
     formRef.value?.resetFields();
+  }
+
+  /** AI翻译单个字段 */
+  async function handleTranslate(field, targetLang) {
+    const sourceText = form.value[field]?.zh;
+    if (!sourceText || !sourceText.trim()) {
+      proxy.$modal.msgWarning('请先输入中文内容');
+      return;
+    }
+
+    translating[field] = true;
+    try {
+      const response = await translateText({
+        text: sourceText,
+        targetLang: targetLang
+      });
+
+      if (response.data && response.data.translatedText) {
+        form.value[field][targetLang] = response.data.translatedText;
+        proxy.$modal.msgSuccess('翻译成功');
+      } else {
+        proxy.$modal.msgError('翻译失败，请重试');
+      }
+    } catch (error) {
+      console.error('AI翻译错误:', error);
+      proxy.$modal.msgError(error.message || '翻译失败，请检查AI配置');
+    } finally {
+      translating[field] = false;
+    }
+  }
+
+  /** AI翻译所有字段 */
+  async function handleTranslateAll() {
+    const hasChineseContent =
+      (form.value.title?.zh && form.value.title.zh.trim()) ||
+      (form.value.keywords?.zh && form.value.keywords.zh.trim()) ||
+      (form.value.description?.zh && form.value.description.zh.trim()) ||
+      (form.value.ogTitle?.zh && form.value.ogTitle.zh.trim()) ||
+      (form.value.ogDescription?.zh && form.value.ogDescription.zh.trim());
+
+    if (!hasChineseContent) {
+      proxy.$modal.msgWarning('请先输入中文内容');
+      return;
+    }
+
+    translating.all = true;
+    const nonZhLocales = locales.value.filter(locale => locale.code !== 'zh');
+
+    try {
+      for (const locale of nonZhLocales) {
+        const fields = ['title', 'keywords', 'description', 'ogTitle', 'ogDescription'];
+        for (const field of fields) {
+          if (form.value[field]?.zh && form.value[field].zh.trim()) {
+            try {
+              const response = await translateText({
+                text: form.value[field].zh,
+                targetLang: locale.code
+              });
+              if (response.data?.translatedText) {
+                form.value[field][locale.code] = response.data.translatedText;
+              }
+            } catch (e) {
+              console.error(`翻译${field}到${locale.name}失败:`, e);
+            }
+          }
+        }
+
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+
+      proxy.$modal.msgSuccess('批量翻译完成');
+    } catch (error) {
+      console.error('批量翻译错误:', error);
+      proxy.$modal.msgError(error.message || '批量翻译失败');
+    } finally {
+      translating.all = false;
+    }
   }
 
   getConfig();

@@ -119,27 +119,85 @@
         <el-tabs v-model="activeTab">
           <el-tab-pane :label="item.name" :name="item.code" v-for="item in locales" :key="item.code">
             <el-form-item :label="`产品名称(${item.name})`" :prop="`productName.${item.code}`">
-              <el-input v-model="form.productName[item.code]" :placeholder="`请输入产品名称(${item.name})`" />
+              <div style="display: flex; gap: 8px; flex: 1">
+                <el-input v-model="form.productName[item.code]" :placeholder="`请输入产品名称(${item.name})`" style="flex: 1" />
+                <el-button
+                  v-if="item.code !== 'zh' && form.productName?.zh"
+                  type="primary"
+                  :icon="icons.MagicStick"
+                  :loading="translating.productName"
+                  @click="handleTranslate('productName', item.code)"
+                  title="AI翻译"
+                >
+                  AI翻译
+                </el-button>
+              </div>
             </el-form-item>
             <el-form-item :label="`关键词(${item.name})`">
-              <el-input
-                v-model="form.keywords[item.code]"
-                :placeholder="`请输入关键词(${item.name})，多个关键词用逗号分隔`"
-              />
+              <div style="display: flex; gap: 8px; flex: 1">
+                <el-input
+                  v-model="form.keywords[item.code]"
+                  :placeholder="`请输入关键词(${item.name})，多个关键词用逗号分隔`"
+                  style="flex: 1"
+                />
+                <el-button
+                  v-if="item.code !== 'zh' && form.keywords?.zh"
+                  type="primary"
+                  :icon="icons.MagicStick"
+                  :loading="translating.keywords"
+                  @click="handleTranslate('keywords', item.code)"
+                  title="AI翻译"
+                >
+                  AI翻译
+                </el-button>
+              </div>
             </el-form-item>
             <el-form-item :label="`简介(${item.name})`">
-              <el-input
-                v-model="form.summary[item.code]"
-                type="textarea"
-                :rows="2"
-                :placeholder="`请输入简介(${item.name})`"
-              />
+              <div style="display: flex; gap: 8px; flex: 1">
+                <el-input
+                  v-model="form.summary[item.code]"
+                  type="textarea"
+                  :rows="2"
+                  :placeholder="`请输入简介(${item.name})`"
+                  style="flex: 1"
+                />
+                <el-button
+                  v-if="item.code !== 'zh' && form.summary?.zh"
+                  type="primary"
+                  :icon="icons.MagicStick"
+                  :loading="translating.summary"
+                  @click="handleTranslate('summary', item.code)"
+                  title="AI翻译"
+                >
+                  AI翻译
+                </el-button>
+              </div>
             </el-form-item>
             <el-form-item :label="`描述(${item.name})`" :prop="`description.${item.code}`">
-              <rich-text-editor v-model="form.description[item.code]" />
+              <div style="display: flex; gap: 8px; flex: 1">
+                <rich-text-editor v-model="form.description[item.code]" style="flex: 1" />
+                <el-button
+                  v-if="item.code !== 'zh' && form.description?.zh"
+                  type="primary"
+                  :icon="icons.MagicStick"
+                  :loading="translating.description"
+                  @click="handleTranslate('description', item.code)"
+                  title="AI翻译"
+                >
+                  AI翻译
+                </el-button>
+              </div>
             </el-form-item>
           </el-tab-pane>
         </el-tabs>
+
+        <!-- 一键翻译所有语言按钮 -->
+        <el-form-item v-if="hasNonZhLanguages">
+          <el-button type="success" :icon="icons.MagicStick" :loading="translating.all" @click="handleTranslateAll">
+            一键翻译所有语言
+          </el-button>
+          <span style="margin-left: 10px; color: #999; font-size: 12px"> 将中文内容翻译成所有其他语言 </span>
+        </el-form-item>
 
         <el-form-item label="分类" prop="categoryId">
           <el-tree-select
@@ -198,9 +256,12 @@
   } from '@/api/cms/product';
   import { listCategory } from '@/api/cms/category';
   import { useListLocale } from '@/hooks/useListLocale';
+  import { translateText } from '@/api/ai';
+  import * as ElementPlusIconsVue from '@element-plus/icons-vue';
 
   const { locales } = useListLocale();
   const { proxy } = getCurrentInstance();
+  const icons = ElementPlusIconsVue;
 
   const productList = ref([]);
   const categoryOptions = ref([]);
@@ -210,6 +271,15 @@
   const activeTab = ref('zh');
   const title = ref('');
   const total = ref(0);
+
+  // 翻译状态
+  const translating = reactive({
+    productName: false,
+    keywords: false,
+    summary: false,
+    description: false,
+    all: false
+  });
 
   const data = reactive({
     form: {},
@@ -228,6 +298,11 @@
   });
 
   const { queryParams, form, rules } = toRefs(data);
+
+  // 计算是否有非中文语言
+  const hasNonZhLanguages = computed(() => {
+    return locales.value.some(locale => locale.code !== 'zh');
+  });
 
   /** 查询产品列表 */
   function getList() {
@@ -391,6 +466,121 @@
         proxy.$modal.msgSuccess('删除成功');
       })
       .catch(() => {});
+  }
+
+  /** AI翻译单个字段 */
+  async function handleTranslate(field, targetLang) {
+    const sourceText = form.value[field]?.zh;
+    if (!sourceText || !sourceText.trim()) {
+      proxy.$modal.msgWarning('请先输入中文内容');
+      return;
+    }
+
+    translating[field] = true;
+    try {
+      const response = await translateText({
+        text: sourceText,
+        targetLang: targetLang
+      });
+
+      if (response.data && response.data.translatedText) {
+        form.value[field][targetLang] = response.data.translatedText;
+        proxy.$modal.msgSuccess('翻译成功');
+      } else {
+        proxy.$modal.msgError('翻译失败，请重试');
+      }
+    } catch (error) {
+      console.error('AI翻译错误:', error);
+      proxy.$modal.msgError(error.message || '翻译失败，请检查AI配置');
+    } finally {
+      translating[field] = false;
+    }
+  }
+
+  /** AI翻译所有字段 */
+  async function handleTranslateAll() {
+    const hasChineseContent =
+      (form.value.productName?.zh && form.value.productName.zh.trim()) ||
+      (form.value.keywords?.zh && form.value.keywords.zh.trim()) ||
+      (form.value.summary?.zh && form.value.summary.zh.trim()) ||
+      (form.value.description?.zh && form.value.description.zh.trim());
+
+    if (!hasChineseContent) {
+      proxy.$modal.msgWarning('请先输入中文内容');
+      return;
+    }
+
+    translating.all = true;
+    const nonZhLocales = locales.value.filter(locale => locale.code !== 'zh');
+
+    try {
+      for (const locale of nonZhLocales) {
+        if (form.value.productName?.zh && form.value.productName.zh.trim()) {
+          try {
+            const response = await translateText({
+              text: form.value.productName.zh,
+              targetLang: locale.code
+            });
+            if (response.data?.translatedText) {
+              form.value.productName[locale.code] = response.data.translatedText;
+            }
+          } catch (e) {
+            console.error(`翻译产品名称到${locale.name}失败:`, e);
+          }
+        }
+
+        if (form.value.keywords?.zh && form.value.keywords.zh.trim()) {
+          try {
+            const response = await translateText({
+              text: form.value.keywords.zh,
+              targetLang: locale.code
+            });
+            if (response.data?.translatedText) {
+              form.value.keywords[locale.code] = response.data.translatedText;
+            }
+          } catch (e) {
+            console.error(`翻译关键词到${locale.name}失败:`, e);
+          }
+        }
+
+        if (form.value.summary?.zh && form.value.summary.zh.trim()) {
+          try {
+            const response = await translateText({
+              text: form.value.summary.zh,
+              targetLang: locale.code
+            });
+            if (response.data?.translatedText) {
+              form.value.summary[locale.code] = response.data.translatedText;
+            }
+          } catch (e) {
+            console.error(`翻译简介到${locale.name}失败:`, e);
+          }
+        }
+
+        if (form.value.description?.zh && form.value.description.zh.trim()) {
+          try {
+            const response = await translateText({
+              text: form.value.description.zh,
+              targetLang: locale.code
+            });
+            if (response.data?.translatedText) {
+              form.value.description[locale.code] = response.data.translatedText;
+            }
+          } catch (e) {
+            console.error(`翻译描述到${locale.name}失败:`, e);
+          }
+        }
+
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+
+      proxy.$modal.msgSuccess('批量翻译完成');
+    } catch (error) {
+      console.error('批量翻译错误:', error);
+      proxy.$modal.msgError(error.message || '批量翻译失败');
+    } finally {
+      translating.all = false;
+    }
   }
 
   getCategoryOptions();
