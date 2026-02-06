@@ -235,7 +235,7 @@
 
   // 搜索事件
   const handleSearch = () => {
-    router.push(localePath({ path: '/search' }));
+    router.push(localePath({ path: '/ai-search' }));
   };
 
   useHead({
