@@ -198,4 +198,4 @@ Nuxt 项目部署文档：https://nuxt.com/docs/getting-started/deployment
 
 ## 注意
 
-> 如果你需要使用`pnpm run generate`生成静态文件部署。请先移除`nuxt.config.ts`中的`nuxt-api-shield`模块在执行此命令生成静态页面。
+> 如果你需要使用`pnpm run generate`生成静态文件部署。请先移除`nuxt.config.ts`中的`nuxt-api-shield`模块再执行此命令生成静态页面。
