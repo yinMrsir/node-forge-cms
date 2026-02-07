@@ -154,12 +154,15 @@ export default defineNuxtConfig({
       '0 0 * * *': ['shield:cleanIpData']
     },
     // 注意生产环境需要配置nginx代理，详见nginx.conf
-    publicAssets: [
-      {
-        dir: path.resolve(__dirname, 'files/uploads'),
-        baseURL: '/uploads'
-      }
-    ]
+    publicAssets:
+      process.env.NODE_ENV === 'development'
+        ? [
+            {
+              dir: path.resolve(__dirname, 'files/uploads'),
+              baseURL: '/uploads'
+            }
+          ]
+        : []
   },
   runtimeConfig: {
     public: {

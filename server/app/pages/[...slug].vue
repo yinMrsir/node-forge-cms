@@ -113,7 +113,8 @@
 
       category.value = cat;
 
-      if (category.value.redirectUrl) {
+      // 在预渲染/服务端时跳过重定向，避免 Nuxt 实例不可用导致错误
+      if (category.value.redirectUrl && import.meta.client) {
         await navigateTo(localePath(category.value.redirectUrl), {
           redirectCode: 301
         });
