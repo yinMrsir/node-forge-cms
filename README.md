@@ -72,7 +72,7 @@ NodeForgeCMS 是基于 **Nuxt4 + Node.js + MySQL** 打造的现代化企业级�
 | **AI功能**   | AI智能搜索、语义理解、AI语言翻译、内容本地化 |
 | **权限系统** | 角色管理、权限控制、操作日志                 |
 | **API接口**  | RESTful API、开放接口、支持二次开发          |
-| **部署方式** | 静态导出、Node服务、Docker容器               |
+| **部署方式** | 静态导出、Node服务                           |
 
 ## 在线体验(网络带宽有限，请耐心等待 🍵)
 
@@ -199,3 +199,7 @@ Nuxt 项目部署文档：https://nuxt.com/docs/getting-started/deployment
 ## 注意
 
 > 如果你需要使用`pnpm run generate`生成静态文件部署。请先移除`nuxt.config.ts`中的`nuxt-api-shield`模块再执行此命令生成静态页面。
+
+## 有任何疑问可添加微信
+
+<img src="https://www.yinchunyu.com/wx.png" width="200" />

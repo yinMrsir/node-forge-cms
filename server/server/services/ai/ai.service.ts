@@ -1,8 +1,30 @@
 import { AiConfigServices } from '../admin/system/aiConfig/ai.config.services';
+import { I18nServices } from '../admin/i18n/i18n.services';
 
 export interface AIProvider {
   name: string;
-  translate(text: string, targetLang: string): Promise<string>;
+  translate(text: string, targetLang: string, langMap: Record<string, string>): Promise<string>;
+}
+
+/**
+ * 获取语言映射表
+ */
+async function getLangMap(): Promise<Record<string, string>> {
+  const i18nServices = new I18nServices();
+  const locales = await i18nServices.getLocales();
+  const langMap: Record<string, string> = {};
+  locales.forEach(locale => {
+    langMap[locale.code] = locale.name;
+  });
+  return langMap;
+}
+
+/**
+ * 构建翻译提示词
+ */
+function buildTranslatePrompt(text: string, targetLang: string, langMap: Record<string, string>): string {
+  const targetLanguage = langMap[targetLang] || targetLang;
+  return `请将以下内容翻译成${targetLanguage}，只返回翻译结果，不要有任何解释或额外内容：${text}`;
 }
 
 /**
@@ -17,26 +39,9 @@ class ZhipuAIProvider implements AIProvider {
     this.config = config;
   }
 
-  translate(text: string, targetLang: string): Promise<string> {
-    const prompt = this.buildTranslatePrompt(text, targetLang);
+  translate(text: string, targetLang: string, langMap: Record<string, string>): Promise<string> {
+    const prompt = buildTranslatePrompt(text, targetLang, langMap);
     return this.callAI(prompt);
-  }
-
-  private buildTranslatePrompt(text: string, targetLang: string): string {
-    const langMap: Record<string, string> = {
-      zh: '中文',
-      en: '英文',
-      ja: '日文',
-      ko: '韩文',
-      fr: '法文',
-      de: '德文',
-      es: '西班牙文',
-      pt: '葡萄牙文',
-      ru: '俄文',
-      ar: '阿拉伯文'
-    };
-    const targetLanguage = langMap[targetLang] || targetLang;
-    return `请将以下内容翻译成${targetLanguage}，只返回翻译结果，不要有任何解释或额外内容：${text}`;
   }
 
   private async callAI(prompt: string): Promise<string> {
@@ -86,26 +91,9 @@ class DoubaoAIProvider implements AIProvider {
     this.config = config;
   }
 
-  translate(text: string, targetLang: string): Promise<string> {
-    const prompt = this.buildTranslatePrompt(text, targetLang);
+  translate(text: string, targetLang: string, langMap: Record<string, string>): Promise<string> {
+    const prompt = buildTranslatePrompt(text, targetLang, langMap);
     return this.callAI(prompt);
-  }
-
-  private buildTranslatePrompt(text: string, targetLang: string): string {
-    const langMap: Record<string, string> = {
-      zh: '中文',
-      en: '英文',
-      ja: '日文',
-      ko: '韩文',
-      fr: '法文',
-      de: '德文',
-      es: '西班牙文',
-      pt: '葡萄牙文',
-      ru: '俄文',
-      ar: '阿拉伯文'
-    };
-    const targetLanguage = langMap[targetLang] || targetLang;
-    return `请将以下内容翻译成${targetLanguage}，只返回翻译结果，不要有任何解释或额外内容：${text}`;
   }
 
   private async callAI(prompt: string): Promise<string> {
@@ -155,26 +143,9 @@ class DeepSeekAIProvider implements AIProvider {
     this.config = config;
   }
 
-  translate(text: string, targetLang: string): Promise<string> {
-    const prompt = this.buildTranslatePrompt(text, targetLang);
+  translate(text: string, targetLang: string, langMap: Record<string, string>): Promise<string> {
+    const prompt = buildTranslatePrompt(text, targetLang, langMap);
     return this.callAI(prompt);
-  }
-
-  private buildTranslatePrompt(text: string, targetLang: string): string {
-    const langMap: Record<string, string> = {
-      zh: '中文',
-      en: '英文',
-      ja: '日文',
-      ko: '韩文',
-      fr: '法文',
-      de: '德文',
-      es: '西班牙文',
-      pt: '葡萄牙文',
-      ru: '俄文',
-      ar: '阿拉伯文'
-    };
-    const targetLanguage = langMap[targetLang] || targetLang;
-    return `请将以下内容翻译成${targetLanguage}，只返回翻译结果，不要有任何解释或额外内容：${text}`;
   }
 
   private async callAI(prompt: string): Promise<string> {
@@ -280,13 +251,14 @@ export class AITranslateService {
   /**
    * 使用指定配置进行翻译
    */
-  private translateWithConfig(text: string, targetLang: string, config: any): Promise<string> {
+  private async translateWithConfig(text: string, targetLang: string, config: any): Promise<string> {
     if (config.status !== '1') {
       throw new Error('AI配置未启用');
     }
 
+    const langMap = await getLangMap();
     const provider = AIServiceFactory.createProvider(config.provider, config.configValue);
-    return provider.translate(text, targetLang);
+    return provider.translate(text, targetLang, langMap);
   }
 
   /**
