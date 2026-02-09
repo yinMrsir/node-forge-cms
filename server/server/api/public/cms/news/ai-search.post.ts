@@ -190,12 +190,7 @@ function generateFallbackKeywords(query: string, _locale: string): string[] {
   const keywords = [query];
 
   // 如果查询包含"新闻"、"产品"等，提取前面的部分
-  const patterns = [
-    /(.+?)新闻$/,
-    /(.+?)产品$/,
-    /(.+?)资讯$/,
-    /(.+?)文章$/
-  ];
+  const patterns = [/(.+?)新闻$/, /(.+?)产品$/, /(.+?)资讯$/, /(.+?)文章$/];
 
   for (const pattern of patterns) {
     const match = query.match(pattern);
@@ -264,7 +259,7 @@ async function performSearch(conditions: any, body: any = {}) {
     queryParams.isRecommend = '1';
   }
 
-  return await newsServices.publicList(queryParams);
+  return await newsServices.publicList(queryParams, { content: true });
 }
 
 /**
@@ -287,9 +282,9 @@ async function refineResultsWithAI(query: string, searchResults: any, locale: st
       .slice(0, 5)
       .map((item: any, index: number) => {
         const title = item.title?.[locale] || item.title?.zh || '';
-        const summary = item.summary?.[locale] || item.summary?.zh || '';
+        const content = item.content?.[locale] || item.content?.zh || '';
         const category = item.category?.categoryName?.[locale] || item.category?.categoryName?.zh || '';
-        return `${index + 1}. ${category} - ${title}: ${summary.substring(0, 50)}...`;
+        return `${index + 1}. ${category} - ${title}: ${content}`;
       })
       .join('\n');
 

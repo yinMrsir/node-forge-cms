@@ -112,7 +112,8 @@ export class NewsServices {
       keywords?: string | string[];
       isRecommend?: string;
       isTop?: string;
-    }
+    },
+    columnsObject = {}
   ) {
     const { pageNum = 1, limit = 10 } = params;
     const offset = (pageNum - 1) * limit;
@@ -200,7 +201,8 @@ export class NewsServices {
           coverImage: true,
           publishTime: true,
           viewCount: true,
-          categoryId: true
+          categoryId: true,
+          ...columnsObject
         },
         with: {
           category: {
