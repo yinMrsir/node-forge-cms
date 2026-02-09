@@ -175,8 +175,9 @@
 
   const route = useRoute();
   const router = useRouter();
-  const { locale } = useI18n();
+  const { locale, locales } = useI18n();
   const localePath = useLocalePath();
+  const config = useRuntimeConfig();
 
   // 根据是否有动态路由参数确定分类ID
   const categoryId = props.category?.categoryId || undefined;
@@ -184,8 +185,6 @@
   const desciprtion = props.category?.description?.[locale.value] || props.category?.description?.zh;
   const keywords = props.category?.keywords?.[locale.value] || props.category?.keywords?.zh;
 
-  // 搜索&筛选参数
-  const searchKey = ref('');
   // 分页参数
   const pageSize = 8;
   const currentPage = computed(() => Number(route.query.page) || 1);
@@ -238,11 +237,27 @@
     router.push(localePath({ path: '/ai-search' }));
   };
 
+  const links = computed(() => {
+    return locales.value.map(loc => {
+      return {
+        rel: 'alternate',
+        hreflang: loc.language,
+        href: `${config.public.serverHost}/${loc.code}${route.path.replace(locale.value, '')}`
+      };
+    });
+  });
   useHead({
     title: pageTitle(categoryName),
     meta: [
       { name: 'description', content: desciprtion },
       { name: 'keywords', content: keywords }
+    ],
+    link: [
+      {
+        rel: 'canonical',
+        href: `${config.public.serverHost}${route.path}`
+      },
+      ...links.value
     ]
   });
 </script>

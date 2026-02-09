@@ -455,9 +455,11 @@
 </template>
 
 <script setup lang="ts">
-  const { locale } = useI18n();
+  const config = useRuntimeConfig();
+  const { locale, locales } = useI18n();
   const localePath = useLocalePath();
   const { t } = await useI18nLoader();
+  const route = useRoute();
 
   // 搜索状态
   const searchKey = ref('');
@@ -640,9 +642,25 @@
     return `${year}-${month}-${day}`;
   }
 
+  const links = computed(() => {
+    return locales.value.map(locale => {
+      return {
+        rel: 'alternate',
+        hreflang: locale.language,
+        href: `${config.public.serverHost}/${locale.code}/ai-search`
+      };
+    });
+  });
   // 设置页面标题
   useHead({
-    title: pageTitle(currentQuery.value ? `${currentQuery.value} - ${t('common.search')}` : t('common.search'))
+    title: pageTitle(currentQuery.value ? `${currentQuery.value} - ${t('common.search')}` : t('common.search')),
+    link: [
+      {
+        rel: 'canonical',
+        href: `${config.public.serverHost}${route.path}`
+      },
+      ...links.value
+    ]
   });
 </script>
 

@@ -512,8 +512,9 @@
   import 'swiper/css/pagination';
 
   const modules = [Navigation, Pagination, Autoplay];
-  const { locale } = useI18n();
+  const { locale, locales } = useI18n();
   const localePath = useLocalePath();
+  const route = useRoute();
 
   const [
     { t },
@@ -647,6 +648,16 @@
   const getOgDescription = () =>
     seoConfig?.ogDescription?.[currentLocale] || seoConfig?.ogDescription?.zh || getDescription();
 
+  const config = useRuntimeConfig();
+  const links = computed(() => {
+    return locales.value.map(locale => {
+      return {
+        rel: 'alternate',
+        hreflang: locale.language,
+        href: `${config.public.serverHost}/${locale.code}`
+      };
+    });
+  });
   useHead({
     title: getTitle(),
     meta: [
@@ -656,6 +667,13 @@
       { property: 'og:description', content: getOgDescription() },
       { property: 'og:image', content: seoConfig?.ogImage || '/favicon.png' },
       { property: 'og:type', content: 'website' }
+    ],
+    link: [
+      {
+        rel: 'canonical',
+        href: `${config.public.serverHost}${route.path}`
+      },
+      ...links.value
     ]
   });
 </script>

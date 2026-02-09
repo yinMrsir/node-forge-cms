@@ -146,8 +146,9 @@
   import { ref } from 'vue';
   import { useRoute } from 'vue-router';
 
+  const config = useRuntimeConfig();
   const route = useRoute();
-  const { locale } = useI18n();
+  const { locale, locales } = useI18n();
   const localePath = useLocalePath();
 
   // 接收动态路由传递的参数
@@ -222,11 +223,27 @@
     return title[locale.value] || title.zh || '';
   }
 
+  const links = computed(() => {
+    return locales.value.map(loc => {
+      return {
+        rel: 'alternate',
+        hreflang: loc.language,
+        href: `${config.public.serverHost}/${loc.code}${route.path.replace(locale.value, '')}`
+      };
+    });
+  });
   useHead({
     title: pageTitle(newsTitle.value),
     meta: [
       { name: 'description', content: summary.value },
       { name: 'keywords', content: keywords }
+    ],
+    link: [
+      {
+        rel: 'canonical',
+        href: `${config.public.serverHost}${route.path}`
+      },
+      ...links.value
     ]
   });
 </script>

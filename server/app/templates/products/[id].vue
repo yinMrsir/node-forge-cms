@@ -103,7 +103,8 @@
 
   const modules = [Navigation];
 
-  const { locale } = useI18n();
+  const config = useRuntimeConfig();
+  const { locale, locales } = useI18n();
   const localePath = useLocalePath();
   const route = useRoute();
 
@@ -149,11 +150,27 @@
     return localePath(url);
   }
 
+  const links = computed(() => {
+    return locales.value.map(loc => {
+      return {
+        rel: 'alternate',
+        hreflang: loc.language,
+        href: `${config.public.serverHost}/${loc.code}${route.path.replace(locale.value, '')}`
+      };
+    });
+  });
   useHead({
     title: pageTitle(productName.value),
     meta: [
       { name: 'description', content: summary.value },
       { name: 'keywords', content: keywords }
+    ],
+    link: [
+      {
+        rel: 'canonical',
+        href: `${config.public.serverHost}${route.path}`
+      },
+      ...links.value
     ]
   });
 </script>

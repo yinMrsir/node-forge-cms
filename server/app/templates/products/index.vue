@@ -174,8 +174,9 @@
     urlKey?: string;
   }>();
 
+  const config = useRuntimeConfig();
   const route = useRoute();
-  const { locale } = useI18n();
+  const { locale, locales } = useI18n();
   const localePath = useLocalePath();
 
   // 根据是否有动态路由参数确定分类ID和名称
@@ -244,11 +245,27 @@
     return localePath({ path: route.path, query });
   }
 
+  const links = computed(() => {
+    return locales.value.map(loc => {
+      return {
+        rel: 'alternate',
+        hreflang: loc.language,
+        href: `${config.public.serverHost}/${loc.code}${route.path.replace(locale.value, '')}`
+      };
+    });
+  });
   useHead({
     title: pageTitle(categoryName),
     meta: [
       { name: 'description', content: desciprtion },
       { name: 'keywords', content: keywords }
+    ],
+    link: [
+      {
+        rel: 'canonical',
+        href: `${config.public.serverHost}${route.path}`
+      },
+      ...links.value
     ]
   });
 </script>
