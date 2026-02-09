@@ -77,10 +77,16 @@ export class BannerServices {
   /* ========== Public Methods ========== */
 
   /* 获取启用的轮播图列表 */
-  getActiveList() {
-    return db.query.bannerTable.findMany({
+  getActiveList(filterParams?: any) {
+    const querys: any = {
       where: and(eq(bannerTable.status, '1'), eq(bannerTable.delFlag, '0')),
       orderBy: [asc(bannerTable.orderNum), desc(bannerTable.createTime)]
+    };
+
+    Object.keys(filterParams).forEach(key => {
+      querys[key] = filterParams[key];
     });
+
+    return db.query.bannerTable.findMany(querys);
   }
 }

@@ -11,11 +11,14 @@ export default defineEventHandler(async event => {
   }
 
   const seoServices = new SeoServices();
-  const data = await seoServices.getByPage(pageType as string, pageKey as string);
+  const data = await seoServices.getByPage(pageType as string, pageKey as string, {
+    title: true,
+    description: true,
+    keywords: true,
+    ogTitle: true,
+    ogDescription: true,
+    ogImage: true
+  });
 
-  return {
-    code: 200,
-    data: data || null,
-    message: 'success'
-  };
+  return data;
 });

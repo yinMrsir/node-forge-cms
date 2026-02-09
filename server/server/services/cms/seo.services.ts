@@ -3,7 +3,7 @@ import { Seo, NewSeo, seoTable } from '~~/server/db/schema/cms/seo';
 
 export class SeoServices {
   /* 获取SEO配置 */
-  async getByPage(pageType: string, pageKey?: string) {
+  async getByPage(pageType: string, pageKey?: string, columns?: any) {
     const whereList = [eq(seoTable.delFlag, '0'), eq(seoTable.pageType, pageType)];
 
     if (pageKey) {
@@ -12,9 +12,14 @@ export class SeoServices {
       whereList.push(sql`(${seoTable.pageKey} IS NULL OR ${seoTable.pageKey} = '')`);
     }
 
-    const data = await db.query.seoTable.findFirst({
+    const querys: any = {
       where: and(...whereList)
-    });
+    };
+    if (columns) {
+      querys.columns = columns;
+    }
+
+    const data = await db.query.seoTable.findFirst(querys);
 
     return data;
   }
@@ -57,7 +62,10 @@ export class SeoServices {
     try {
       seo.updateTime = new Date();
       delete seo.createTime;
-      await db.update(seoTable).set(seo).where(eq(seoTable.id, Number(seo.id)));
+      await db
+        .update(seoTable)
+        .set(seo)
+        .where(eq(seoTable.id, Number(seo.id)));
     } catch (error) {
       throw createError({ statusCode: 400, message: String(error) });
     }
@@ -73,6 +81,9 @@ export class SeoServices {
 
   /* 删除（软删除） */
   async delete(id: string, userName: string) {
-    await db.update(seoTable).set({ delFlag: '2', updateBy: userName }).where(eq(seoTable.id, Number(id)));
+    await db
+      .update(seoTable)
+      .set({ delFlag: '2', updateBy: userName })
+      .where(eq(seoTable.id, Number(id)));
   }
 }

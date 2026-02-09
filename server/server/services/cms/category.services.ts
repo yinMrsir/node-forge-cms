@@ -69,7 +69,7 @@ export class CategoryServices {
   }
 
   /* 分页查询分类 */
-  async list(params: Partial<Category> & { pageNum?: number; limit?: number }) {
+  async list(params: Partial<Category> & { pageNum?: number; limit?: number }, filterParams?: any) {
     const { pageNum = 1, limit = 10 } = params || {};
     const offset = (pageNum - 1) * limit;
 
@@ -91,15 +91,17 @@ export class CategoryServices {
     }
     const where = and(...whereList);
 
-    const [rows, total] = await Promise.all([
-      db.query.categoryTable.findMany({
-        where,
-        limit,
-        offset,
-        orderBy: categoryTable.orderNum
-      }),
-      db.$count(categoryTable, where)
-    ]);
+    const querys: any = {
+      where,
+      limit,
+      offset,
+      orderBy: categoryTable.orderNum
+    };
+    Object.keys(filterParams).forEach(key => {
+      querys[key] = filterParams[key];
+    });
+
+    const [rows, total] = await Promise.all([db.query.categoryTable.findMany(querys), db.$count(categoryTable, where)]);
 
     return { rows, total };
   }

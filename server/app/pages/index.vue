@@ -615,7 +615,7 @@
   }
 
   // 设置SEO meta标签
-  const seoConfig = seoData.value?.data;
+  const seoConfig = seoData.value;
   const currentLocale = locale.value as 'zh' | 'en';
 
   const defaultTitle = {
