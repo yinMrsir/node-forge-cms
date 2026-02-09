@@ -100,10 +100,16 @@ REDIS_HOST=127.0.0.1
 REDIS_PORT=6379
 REDIS_USERNAME=
 REDIS_PASSWORD=
-REDIS_DB=0
+REDIS_DB=5
 
 SERVER_HOST=http://127.0.0.1:3000
 IMG_HOST=http://127.0.0.1:3000
+# 用户发送邮件的邮箱
+FORM_USER_EMAIL=
+# 用户发送邮件的邮箱密码
+FORM_USER_EMAIL_PASSWORD=
+# 使用 Gmail 服务，你可以使用其他服务，如 'QQ'
+USER_EMAIL_SERVICE=QQ
 ```
 
 **注意：** `mysql`和`redis`的端口号，用户名，密码，数据库名称，jwt 加密密钥等配置信息，请自行修改。
