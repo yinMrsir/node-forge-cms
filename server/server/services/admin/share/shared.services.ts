@@ -89,10 +89,14 @@ export class SharedServices {
   async getLocation(ip: string) {
     if (this.IsLAN(ip)) return '内网IP';
     try {
-      const response = await fetch(`http://whois.pconline.com.cn/ipJson.jsp?ip=${ip}&json=true`);
-      const buffer = await response.arrayBuffer();
-      const data = JSON.parse((iconv as any).decode(Buffer.from(buffer), 'gbk'));
-      return data.pro + ' ' + data.city;
+      // 接口不通
+      // const response = await fetch(`https://ipapi.co/${ip}/json/`);
+      // const buffer = await response.arrayBuffer();
+      // const data = JSON.parse((iconv as any).decode(Buffer.from(buffer), 'gbk'));
+      // return data.pro + ' ' + data.city;
+      const response = await fetch(`https://ipapi.co/${ip}/json/`);
+      const data = await response.json();
+      return data.region + ' ' + data.city;
     } catch (error) {
       return '未知';
     }
