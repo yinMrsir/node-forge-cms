@@ -24,9 +24,9 @@
       <div class="text-center">
         <h1 class="text-2xl font-bold text-gray-800 mb-4">{{ t('error.pageNotFound') }}</h1>
         <p class="text-gray-600">{{ t('error.categoryNotFound') }}</p>
-        <nuxt-link :to="localePath('/')" class="inline-block mt-4 text-primary hover:underline">{{
-          t('error.backToHome')
-        }}</nuxt-link>
+        <nuxt-link :to="localePath('/')" class="inline-block mt-4 text-primary hover:underline">
+          {{ t('error.backToHome') }}
+        </nuxt-link>
       </div>
     </div>
   </div>

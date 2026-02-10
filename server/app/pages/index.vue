@@ -37,34 +37,6 @@
         </div>
       </swiper-slide>
     </swiper>
-    <!-- 默认轮播图（无数据时显示） -->
-    <swiper v-else :modules="modules" navigation :pagination="{ clickable: true }" :autoplay="{ delay: 5000 }">
-      <swiper-slide v-for="(_, index) in 3" :key="index">
-        <div class="h-[60vh] md:h-[70vh]">
-          <img
-            src="https://picsum.photos/id/1068/1920/1080"
-            :alt="t('home.banner.title')"
-            class="w-full h-full object-cover"
-          />
-          <div class="absolute inset-0 bg-black/30 flex items-center">
-            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-              <div class="max-w-2xl text-white">
-                <h1 class="text-[clamp(2rem,5vw,3.5rem)] font-bold leading-tight mb-4">{{ t('home.banner.title') }}</h1>
-                <p class="text-[clamp(1rem,2vw,1.25rem)] mb-6 text-gray-100">
-                  {{ t('home.banner.description') }}
-                </p>
-                <a
-                  href="#products"
-                  class="inline-block bg-primary hover:bg-primary/90 text-white font-medium px-6 py-3 rounded-md transition-all duration-300 transform hover:scale-105"
-                >
-                  {{ t('home.banner.viewProducts') }}
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </swiper-slide>
-    </swiper>
 
     <!-- 产品中心 -->
     <section id="products" class="py-16 bg-white">
