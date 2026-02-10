@@ -5,7 +5,7 @@
 import * as fs from 'fs';
 import CryptoJS from 'crypto-js';
 import { customAlphabet, nanoid } from 'nanoid';
-import iconv from 'iconv-lite';
+// import iconv from 'iconv-lite';
 
 export class SharedServices {
   /**
@@ -89,14 +89,14 @@ export class SharedServices {
   async getLocation(ip: string) {
     if (this.IsLAN(ip)) return '内网IP';
     try {
-      // 接口不通
+      // 接口现在不可用，换下方接口
       // const response = await fetch(`https://ipapi.co/${ip}/json/`);
       // const buffer = await response.arrayBuffer();
       // const data = JSON.parse((iconv as any).decode(Buffer.from(buffer), 'gbk'));
       // return data.pro + ' ' + data.city;
-      const response = await fetch(`https://ipapi.co/${ip}/json/`);
+      const response = await fetch(`http://ip-api.com/json/${ip}`);
       const data = await response.json();
-      return data.region + ' ' + data.city;
+      return data.regionName + ' ' + data.city;
     } catch (error) {
       return '未知';
     }
