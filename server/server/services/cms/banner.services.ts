@@ -83,9 +83,11 @@ export class BannerServices {
       orderBy: [asc(bannerTable.orderNum), desc(bannerTable.createTime)]
     };
 
-    Object.keys(filterParams).forEach(key => {
-      querys[key] = filterParams[key];
-    });
+    filterParams &&
+      typeof filterParams === 'object' &&
+      Object.keys(filterParams).forEach(key => {
+        querys[key] = filterParams[key];
+      });
 
     return db.query.bannerTable.findMany(querys);
   }

@@ -97,9 +97,11 @@ export class CategoryServices {
       offset,
       orderBy: categoryTable.orderNum
     };
-    Object.keys(filterParams).forEach(key => {
-      querys[key] = filterParams[key];
-    });
+    filterParams &&
+      typeof filterParams === 'object' &&
+      Object.keys(filterParams).forEach(key => {
+        querys[key] = filterParams[key];
+      });
 
     const [rows, total] = await Promise.all([db.query.categoryTable.findMany(querys), db.$count(categoryTable, where)]);
 
