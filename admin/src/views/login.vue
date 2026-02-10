@@ -3,7 +3,7 @@
     <el-form ref="loginRef" :model="loginForm" :rules="loginRules" class="login-form">
       <h3 class="title">NodeForgeCMS</h3>
       <el-form-item prop="username">
-        <el-input v-model="loginForm.username" type="text" size="large" auto-complete="off" placeholder="账号">
+        <el-input v-model="loginForm.username" type="text" size="large" auto-complete="off" placeholder="admin">
           <template #prefix><svg-icon icon-class="user" class="el-input__icon input-icon" /></template>
         </el-input>
       </el-form-item>
@@ -13,7 +13,7 @@
           type="password"
           size="large"
           auto-complete="off"
-          placeholder="密码"
+          placeholder="admin123"
           @keyup.enter="handleLogin"
         >
           <template #prefix><svg-icon icon-class="password" class="el-input__icon input-icon" /></template>
@@ -61,8 +61,8 @@
   const router = useRouter();
 
   const loginForm = ref({
-    username: 'admin',
-    password: 'admin123',
+    username: '',
+    password: '',
     rememberMe: false,
     code: '',
     uuid: ''
