@@ -111,7 +111,7 @@
       <el-form v-if="open" ref="newsRef" :model="form" :rules="rules" label-width="120px">
         <el-tabs v-model="activeTab">
           <el-tab-pane :label="item.name" :name="item.code" v-for="item in locales">
-            <el-form-item :label="`标题(${item.name})`" :prop="`title.${item.code}`">
+            <el-form-item :label="`标题(${item.name})`" :prop="`title.${item.code}`" v-if="item.code">
               <div style="display: flex; gap: 8px; flex: 1">
                 <el-input v-model="form.title[item.code]" :placeholder="`请输入标题(${item.name})`" style="flex: 1" />
                 <el-button
@@ -269,6 +269,8 @@
   const { proxy } = getCurrentInstance();
   const icons = ElementPlusIconsVue;
 
+  console.log(locales);
+
   const newsList = ref([]);
   const categoryOptions = ref([]);
   const open = ref(false);
@@ -288,7 +290,9 @@
   });
 
   const data = reactive({
-    form: {},
+    form: {
+      title: {}
+    },
     queryParams: {
       pageNum: 1,
       limit: 10,
@@ -340,15 +344,11 @@
   /** 表单重置 */
   function reset() {
     form.value = {
+      title: {},
       newsId: null,
-      titleZh: null,
-      titleEn: null,
-      keywordsZh: null,
-      keywordsEn: null,
-      summaryZh: null,
-      summaryEn: null,
-      contentZh: null,
-      contentEn: null,
+      keywords: {},
+      summary: {},
+      content: {},
       categoryId: null,
       coverImage: null,
       author: null,
