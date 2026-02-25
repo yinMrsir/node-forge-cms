@@ -1,0 +1,131 @@
+version: '3.8'
+
+services:
+  # MySQL 数据库
+  mysql:
+    image: mysql:8.0
+    container_name: nodeforgecms-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-nodeforge_password}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-node_forge_cms}
+      MYSQL_USER: ${MYSQL_USER:-nodeforge}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-nodeforge_password}
+      TZ: Asia/Shanghai
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    networks:
+      - nodeforgecms-network
+
+  # Redis 缓存
+  redis:
+    image: redis:7-alpine
+    container_name: nodeforgecms-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis_password}
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      timeout: 10s
+      retries: 5
+    networks:
+      - nodeforgecms-network
+
+  # Nginx 反向代理
+  nginx:
+    image: nginx:alpine
+    container_name: nodeforgecms-nginx
+    restart: unless-stopped
+    ports:
+      - "${NGINX_HTTP_PORT:-80}:80"
+      - "${NGINX_HTTPS_PORT:-443}:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./server/files/uploads:/var/www/uploads:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - app
+    networks:
+      - nodeforgecms-network
+
+  # 应用主服务
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nodeforgecms-app
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      NUXT_HOST: 0.0.0.0
+      NUXT_PORT: 3000
+
+      # 数据库配置
+      DATABASE_HOST: mysql
+      DATABASE_PORT: 3306
+      DATABASE_USERNAME: ${MYSQL_USER:-nodeforge}
+      DATABASE_PASSWORD: ${MYSQL_PASSWORD:-nodeforge_password}
+      DATABASE_DB: ${MYSQL_DATABASE:-node_forge_cms}
+
+      # Redis 配置
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_USERNAME: ""
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-redis_password}
+      REDIS_DB: 5
+
+      # JWT 配置
+      JWT_SECRET: ${JWT_SECRET:-your_jwt_secret_key_change_in_production}
+
+      # 服务配置
+      SERVER_HOST: ${SERVER_HOST:-http://localhost}
+      IMG_HOST: ${IMG_HOST:-http://localhost}
+      IS_DEMO_ENVIRONMENT: ${IS_DEMO_ENVIRONMENT:-false}
+
+      # 邮件配置
+      FORM_USER_EMAIL: ${FORM_USER_EMAIL:-}
+      FORM_USER_EMAIL_PASSWORD: ${FORM_USER_EMAIL_PASSWORD:-}
+      USER_EMAIL_SERVICE: ${USER_EMAIL_SERVICE:-QQ}
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    volumes:
+      - app-uploads:/app/files/uploads
+      - app-logs:/app/logs
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/"]
+      timeout: 10s
+      interval: 30s
+      retries: 3
+      start_period: 60s
+    networks:
+      - nodeforgecms-network
+
+volumes:
+  mysql-data:
+    driver: local
+  redis-data:
+    driver: local
+  app-uploads:
+    driver: local
+  app-logs:
+    driver: local
+
+networks:
+  nodeforgecms-network:
+    driver: bridge
