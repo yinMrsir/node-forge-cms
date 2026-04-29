@@ -143,7 +143,9 @@ pnpm dev
 
 ## 部署
 
-### 构建管理端
+### 方式一：管理端和用户端单独域名
+
+#### 构建管理端
 
 执行以下命令会生成`dist`目录，可通过`nginx`指定到目录。
 
@@ -153,7 +155,7 @@ pnpm isntall
 pnpm build:prod
 ```
 
-### 构建服务端和用户端
+#### 构建服务端和用户端
 
 ```shell
 cd server
@@ -177,7 +179,7 @@ server {
     server_name your.domain.com;
 
     location / {
-        proxy_pass http://127.0.0.1:3000/;
+        proxy_pass http://127.0.0.1:8888/;
     }
     location /uploads {
         alias /path/to/NodeForgeCMS/server/uploads;
@@ -195,7 +197,64 @@ server {
     }
 
     location /api/ {
-        proxy_pass http://127.0.0.1:3000/api/;
+        proxy_pass http://127.0.0.1:8888/api/;
+    }
+}
+```
+
+### 方式二：用户端和管理端共用域名
+
+#### 构建管理端
+
+执行以下命令会生成`dist`目录，可通过`nginx`指定到目录。
+
+```shell
+cd admin
+pnpm isntall
+pnpm build:sigle
+```
+
+#### 构建服务端和用户端
+
+```shell
+cd server
+pnpm isntall
+pnpm build
+```
+
+构建完成后，可通过 pm2 进行部署，未安装的可执行`npm install -g pm2`安装
+
+执行以下命令启动服务：
+
+```shell
+cd server && pm2 start pm2.config.cjs
+```
+
+nginx 配置如下：
+
+```nginx configuration
+server {
+    listen 80;
+    server_name your.domain.com;
+
+    location / {
+        proxy_pass http://127.0.0.1:8888/;
+    }
+
+    location /uploads {
+        alias /path/to/NodeForgeCMS/server/uploads;
+    }
+
+    location /admin {
+        alias /path/to/NodeForgeCMS/admin/dist;
+        try_files $uri $uri/ /admin/index.html;
+        index index.html index.htm;
+
+        expires -1;
+        add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate";
+
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     }
 }
 ```
