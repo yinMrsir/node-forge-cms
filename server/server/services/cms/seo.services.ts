@@ -38,8 +38,8 @@ export class SeoServices {
     const [rows, total] = await Promise.all([
       db.query.seoTable.findMany({
         where,
-        limit,
-        offset,
+        limit: Number(limit),
+        offset: Number(offset),
         orderBy: seoTable.id
       }),
       db.$count(seoTable, where)

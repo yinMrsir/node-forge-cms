@@ -37,8 +37,8 @@ export class ContactServices {
     const [rows, total] = await Promise.all([
       db.query.contactTable.findMany({
         where,
-        limit,
-        offset,
+        limit: Number(limit),
+        offset: Number(offset),
         orderBy: [desc(contactTable.createTime)]
       }),
       db.$count(contactTable, where)

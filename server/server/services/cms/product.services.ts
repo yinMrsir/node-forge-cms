@@ -51,8 +51,8 @@ export class ProductServices {
     const [rows, total] = await Promise.all([
       db.query.productTable.findMany({
         where,
-        limit,
-        offset,
+        limit: Number(limit),
+        offset: Number(offset),
         with: {
           category: true
         },

@@ -44,8 +44,8 @@ export class BannerServices {
     const [rows, total] = await Promise.all([
       db.query.bannerTable.findMany({
         where,
-        limit,
-        offset,
+        limit: Number(limit),
+        offset: Number(offset),
         orderBy: [asc(bannerTable.orderNum), desc(bannerTable.createTime)]
       }),
       db.$count(bannerTable, where)

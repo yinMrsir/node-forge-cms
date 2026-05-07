@@ -99,8 +99,8 @@ export class ContentServices {
     const [rows, total] = await Promise.all([
       db.query.contentTable.findMany({
         where,
-        limit: +limit,
-        offset,
+        limit: Number(limit),
+        offset: Number(offset),
         with: {
           category: {
             columns: {

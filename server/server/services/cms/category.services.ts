@@ -93,8 +93,8 @@ export class CategoryServices {
 
     const querys: any = {
       where,
-      limit,
-      offset,
+      limit: Number(limit),
+      offset: Number(offset),
       orderBy: categoryTable.orderNum
     };
     filterParams &&
