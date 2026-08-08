@@ -1,4 +1,4 @@
-import { int, mysqlTable, varchar, char, json, datetime } from 'drizzle-orm/mysql-core';
+import { int, mysqlTable, varchar, char, json, datetime, index } from 'drizzle-orm/mysql-core';
 import { columnsHelpers } from '../../columns.helpers';
 import { relations } from 'drizzle-orm';
 import { categoryTable } from './category';
@@ -35,7 +35,14 @@ export const newsTable = mysqlTable('news', {
   // 删除标志：0=未删除, 2=已删除
   delFlag: char('del_flag', { length: 1 }).default('0'),
   ...columnsHelpers
-});
+}, (table) => [
+  // 复合索引：覆盖列表查询的 WHERE + ORDER BY，避免 filesort
+  index('idx_news_list_sort').on(table.delFlag, table.isTop, table.publishTime, table.createTime),
+  // 分类筛选索引
+  index('idx_news_category').on(table.categoryId),
+  // 状态筛选索引
+  index('idx_news_status').on(table.status)
+]);
 
 // 定义关系
 export const newsRelations = relations(newsTable, ({ one }) => ({

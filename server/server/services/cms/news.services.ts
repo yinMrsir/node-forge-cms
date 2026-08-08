@@ -53,6 +53,26 @@ export class NewsServices {
         where,
         limit: Number(limit),
         offset: Number(offset),
+        columns: {
+          newsId: true,
+          title: true,
+          summary: true,
+          keywords: true,
+          categoryId: true,
+          coverImage: true,
+          author: true,
+          source: true,
+          isTop: true,
+          isRecommend: true,
+          viewCount: true,
+          publishTime: true,
+          status: true,
+          remark: true,
+          createBy: true,
+          createTime: true,
+          updateBy: true,
+          updateTime: true
+        },
         with: {
           category: true
         },
